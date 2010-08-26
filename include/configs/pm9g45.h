@@ -56,6 +56,12 @@
 #define CONFIG_ATMEL_USART	1
 #define CONFIG_USART3		1	/* USART 3 is DBGU */
 
+/*
+ * 1-wire
+ */
+#define CONFIG_DS2401
+#define CONFIG_DS2401_PIN	AT91_PIO_PORTA, 31
+
 #define CONFIG_SYS_USE_NANDFLASH	1
 
 /* LED */
@@ -96,6 +102,7 @@
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			0x70000000
 #define PHYS_SDRAM_SIZE			0x08000000	/* 128 megs */
+#define CONFIG_MAC_OUI	"02:00:00" /* Organizationally Unique Identifier*/
 
 /* NOR flash, not available */
 #define CONFIG_SYS_NO_FLASH		1
