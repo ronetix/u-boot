@@ -39,6 +39,14 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/io.h>
 #include <asm/arch/hardware.h>
+#ifdef CONFIG_LCD
+#include <lcd.h>
+#include <atmel_lcdc.h>
+#endif
+#ifdef CONFIG_LCD_INFO
+#include <nand.h>
+#include <version.h>
+#endif
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
 #endif
@@ -130,6 +138,124 @@ static void pm9g45_macb_hw_init(void)
 }
 #endif
 
+#ifdef CONFIG_LCD
+/*
+ * LCD name TX09D50VM1CCA
+ */
+vidinfo_t panel_info = {
+	vl_col:		240,
+	vl_row:		320,
+	vl_clk:		4965000,
+	vl_sync:	ATMEL_LCDC_INVLINE_NORMAL |
+			ATMEL_LCDC_INVFRAME_NORMAL,
+	vl_bpix:	3,
+	vl_tft:		1,
+	vl_hsync_len:	5,
+	vl_left_margin:	1,
+	vl_right_margin:33,
+	vl_vsync_len:	1,
+	vl_upper_margin:1,
+	vl_lower_margin:0,
+	mmio:		AT91SAM9G45_LCDC_BASE,
+};
+
+void lcd_enable(void)
+{
+	at91_set_a_periph(AT91_PIO_PORTE, 6, 1);	/* power up */
+}
+
+void lcd_disable(void)
+{
+	at91_set_a_periph(AT91_PIO_PORTE, 6, 0);	/* power down */
+}
+
+static void pm9g45_lcd_hw_init(void)
+{
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+
+	at91_set_a_periph(AT91_PIO_PORTE, 0, 0);	/* LCDDPWR */
+	at91_set_a_periph(AT91_PIO_PORTE, 2, 0);	/* LCDCC */
+	at91_set_a_periph(AT91_PIO_PORTE, 3, 0);	/* LCDVSYNC */
+	at91_set_a_periph(AT91_PIO_PORTE, 4, 0);	/* LCDHSYNC */
+	at91_set_a_periph(AT91_PIO_PORTE, 5, 0);	/* LCDDOTCK */
+
+	at91_set_a_periph(AT91_PIO_PORTE, 7, 0);	/* LCDD0 */
+	at91_set_a_periph(AT91_PIO_PORTE, 8, 0);	/* LCDD1 */
+	at91_set_a_periph(AT91_PIO_PORTE, 9, 0);	/* LCDD2 */
+	at91_set_a_periph(AT91_PIO_PORTE, 10, 0);	/* LCDD3 */
+	at91_set_a_periph(AT91_PIO_PORTE, 11, 0);	/* LCDD4 */
+	at91_set_a_periph(AT91_PIO_PORTE, 12, 0);	/* LCDD5 */
+	at91_set_a_periph(AT91_PIO_PORTE, 13, 0);	/* LCDD6 */
+	at91_set_a_periph(AT91_PIO_PORTE, 14, 0);	/* LCDD7 */
+	at91_set_a_periph(AT91_PIO_PORTE, 15, 0);	/* LCDD8 */
+	at91_set_a_periph(AT91_PIO_PORTE, 16, 0);	/* LCDD9 */
+	at91_set_a_periph(AT91_PIO_PORTE, 17, 0);	/* LCDD10 */
+	at91_set_a_periph(AT91_PIO_PORTE, 18, 0);	/* LCDD11 */
+	at91_set_a_periph(AT91_PIO_PORTE, 19, 0);	/* LCDD12 */
+	at91_set_b_periph(AT91_PIO_PORTE, 20, 0);	/* LCDD13 */
+	at91_set_a_periph(AT91_PIO_PORTE, 21, 0);	/* LCDD14 */
+	at91_set_a_periph(AT91_PIO_PORTE, 22, 0);	/* LCDD15 */
+	at91_set_a_periph(AT91_PIO_PORTE, 23, 0);	/* LCDD16 */
+	at91_set_a_periph(AT91_PIO_PORTE, 24, 0);	/* LCDD17 */
+	at91_set_a_periph(AT91_PIO_PORTE, 25, 0);	/* LCDD18 */
+	at91_set_a_periph(AT91_PIO_PORTE, 26, 0);	/* LCDD19 */
+	at91_set_a_periph(AT91_PIO_PORTE, 27, 0);	/* LCDD20 */
+	at91_set_b_periph(AT91_PIO_PORTE, 28, 0);	/* LCDD21 */
+	at91_set_a_periph(AT91_PIO_PORTE, 29, 0);	/* LCDD22 */
+	at91_set_a_periph(AT91_PIO_PORTE, 30, 0);	/* LCDD23 */
+
+	writel(1 << AT91SAM9G45_ID_LCDC, &pmc->pcer);
+
+	gd->fb_base = CONFIG_AT91SAM9G45_LCD_BASE;
+}
+
+#ifdef CONFIG_LCD_INFO
+
+void lcd_show_board_info(void)
+{
+	ulong dram_size, nand_size;
+#ifdef CONFIG_HAS_DATAFLASH
+	ulong dataflash_size;
+#endif
+	int i;
+	char temp[32];
+
+	lcd_printf ("%s\n", U_BOOT_VERSION);
+	lcd_printf ("(C) 2010 Ronetix GmbH\n");
+	lcd_printf ("support@ronetix.at\n");
+	lcd_printf ("%s CPU at %s MHz\n",
+		CONFIG_SYS_AT91_CPU_NAME,
+		strmhz(temp, get_cpu_clk_rate()));
+
+	dram_size = 0;
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
+		dram_size += gd->bd->bi_dram[i].size;
+
+	nand_size = 0;
+	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
+		nand_size += nand_info[i].size;
+
+#ifdef CONFIG_HAS_DATAFLASH
+	dataflash_size = 0;
+	for (i = 0; i < CONFIG_SYS_MAX_DATAFLASH_BANKS; i++) {
+		dataflash_size += (unsigned int)
+				dataflash_info[i].Device.pages_number *
+				dataflash_info[i].Device.pages_size;
+	}
+#endif
+
+	lcd_printf ("%ld MB DDR2 SDRAM\n%ld MB NAND\n",
+		dram_size >> 20,
+		nand_size >> 20);
+
+#ifdef CONFIG_HAS_DATAFLASH
+	lcd_printf ("%ld MB DataFlash\n",
+		dataflash_size >> 20);
+#endif
+}
+#endif /* CONFIG_LCD_INFO */
+#endif
+
 int board_init(void)
 {
 	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
@@ -154,6 +280,10 @@ int board_init(void)
 
 #ifdef CONFIG_MACB
 	pm9g45_macb_hw_init();
+#endif
+
+#ifdef CONFIG_LCD
+	pm9g45_lcd_hw_init();
 #endif
 	return 0;
 }
