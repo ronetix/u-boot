@@ -130,6 +130,8 @@
 #define CONFIG_NET_MULTI		1
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_RESET_PHY_R		1
+#define CONFIG_MACB_SEARCH_PHY
+#define CONFIG_CMD_MII
 
 /* USB */
 #define CONFIG_USB_ATMEL
@@ -162,6 +164,9 @@
 #define CONFIG_SYS_MEMTEST_END		CONFIG_AT91SAM9G45_LCD_BASE
 
 /* bootstrap + u-boot + env + linux in nandflash */
+#define CONFIG_OVERWRITE_ETHADDR_ONCE
+	/* Organizationally Unique Identifier + 3 octets "random" numbers */
+#define CONFIG_ETHADDR		"02:00:00:de:ad:01"
 #define CONFIG_ENV_IS_IN_NAND		1
 #define CONFIG_ENV_OFFSET		0x60000
 #define CONFIG_ENV_OFFSET_REDUND	0x80000

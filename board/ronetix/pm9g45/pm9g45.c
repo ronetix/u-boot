@@ -130,6 +130,8 @@ static void pm9g45_macb_hw_init(void)
 {
 	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
 	at91_pio_t	*pio	= (at91_pio_t *) AT91_PIO_BASE;
+	at91_rstc_t	*rstc	= (at91_rstc_t *) AT91_RSTC_BASE;
+	unsigned long	erstl;
 
 	/*
 	 * PD2 enables the 50MHz oscillator for Ethernet PHY
@@ -154,6 +156,19 @@ static void pm9g45_macb_hw_init(void)
 	at91_set_pio_pullup(AT91_PIO_PORTA, 12, 0);
 	at91_set_pio_pullup(AT91_PIO_PORTA, 13, 0);
 
+	erstl = readl(&rstc->mr) & AT91_RSTC_MR_ERSTL_MASK;
+
+	/* Need to reset PHY -> 500ms reset */
+	writel(AT91_RSTC_KEY | AT91_RSTC_MR_ERSTL(0x0D) |
+		AT91_RSTC_MR_URSTEN, &rstc->mr);
+
+	writel(AT91_RSTC_KEY | AT91_RSTC_CR_EXTRST, &rstc->cr);
+	/* Wait for end hardware reset */
+	while (!(readl(&rstc->sr) & AT91_RSTC_SR_NRSTL))
+		;
+
+	/* Restore NRST value */
+	writel(AT91_RSTC_KEY | erstl | AT91_RSTC_MR_URSTEN, &rstc->mr);
 	/* Re-enable pull-up */
 	at91_set_pio_pullup(AT91_PIO_PORTA, 15, 1);
 	at91_set_pio_pullup(AT91_PIO_PORTA, 12, 1);
