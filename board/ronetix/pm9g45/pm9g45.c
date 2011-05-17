@@ -189,6 +189,7 @@ static void pm9g45_macb_hw_init(void)
 #endif
 
 #ifdef CONFIG_LCD
+#if 0
 /*
  * LCD name TX09D50VM1CCA
  */
@@ -206,6 +207,26 @@ vidinfo_t panel_info = {
 	vl_vsync_len:	1,
 	vl_upper_margin:1,
 	vl_lower_margin:0,
+	mmio:		AT91SAM9G45_LCDC_BASE,
+};
+#endif
+/*
+ * LCD name GATW70SN8H1E0
+ */
+vidinfo_t panel_info = {
+	vl_col:		800,
+	vl_row:		480,
+	vl_clk:		25000000,
+	vl_sync:	ATMEL_LCDC_INVLINE_NORMAL |
+			ATMEL_LCDC_INVFRAME_NORMAL,
+	vl_bpix:	3,
+	vl_tft:		1,
+	vl_hsync_len:	48,
+	vl_left_margin:	1,
+	vl_right_margin:33,
+	vl_vsync_len:	3,
+	vl_upper_margin:29,
+	vl_lower_margin:13,
 	mmio:		AT91SAM9G45_LCDC_BASE,
 };
 
