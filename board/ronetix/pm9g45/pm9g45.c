@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2010
+ * (C) Copyright 2010,2011
  * Ilko Iliev <iliev@ronetix.at>
  * Asen Dimov <dimov@ronetix.at>
  * Ronetix GmbH <www.ronetix.at>
@@ -144,6 +144,11 @@ static void pm9g45_macb_hw_init(void)
 	/* Enable clock */
 	writel(1 << AT91SAM9G45_ID_EMAC, &pmc->pcer);
 
+/* On BaseBoard BB9G45 no additional reset is needed,
+ * but on PM9263 it is needed. if CONFIG_RESET_PHY_R
+ * is defined an reset will accrue.
+ */
+#ifdef CONFIG_RESET_PHY_R
 	/*
 	 * Disable pull-up on:
 	 *	RXDV (PA15) => PHY normal mode (not Test mode)
@@ -174,6 +179,7 @@ static void pm9g45_macb_hw_init(void)
 	at91_set_pio_pullup(AT91_PIO_PORTA, 12, 1);
 	at91_set_pio_pullup(AT91_PIO_PORTA, 13, 1);
 
+#endif
 	at91_macb_hw_init();
 }
 #endif
