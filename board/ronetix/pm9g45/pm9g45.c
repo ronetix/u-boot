@@ -169,17 +169,21 @@ static void pm9g45_macb_hw_init(void)
 
 	writel(AT91_RSTC_KEY | AT91_RSTC_CR_EXTRST, &rstc->cr);
 	/* Wait for end hardware reset */
-	while (!(readl(&rstc->sr) & AT91_RSTC_SR_NRSTL))
-		;
+	while (!(readl(&rstc->sr) & AT91_RSTC_SR_NRSTL));
 
-	/* Restore NRST value */
+	/* Restore NRST value and enable user reset */
 	writel(AT91_RSTC_KEY | erstl | AT91_RSTC_MR_URSTEN, &rstc->mr);
 	/* Re-enable pull-up */
 	at91_set_pio_pullup(AT91_PIO_PORTA, 15, 1);
 	at91_set_pio_pullup(AT91_PIO_PORTA, 12, 1);
 	at91_set_pio_pullup(AT91_PIO_PORTA, 13, 1);
 
+#else
+	/* Enable user reset */
+	erstl = readl(&rstc->mr);
+	writel(AT91_RSTC_KEY | erstl | AT91_RSTC_MR_URSTEN, &rstc->mr);
 #endif
+
 	at91_macb_hw_init();
 }
 #endif
