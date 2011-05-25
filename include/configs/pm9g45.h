@@ -129,6 +129,9 @@
 #define CONFIG_RMII			1
 #define CONFIG_NET_MULTI		1
 #define CONFIG_NET_RETRY_COUNT		20
+#if defined(CONFIG_BB9263)
+#define CONFIG_RESET_PHY_R
+#endif
 #define CONFIG_MACB_SEARCH_PHY
 #define CONFIG_CMD_MII
 
@@ -171,14 +174,19 @@
 #define CONFIG_ENV_OFFSET_REDUND	0x80000
 #define CONFIG_ENV_SIZE			0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x72000000 0x200000 0x200000; bootm"
-#define CONFIG_BOOTARGS		"fbcon=rotate:3 console=tty0 " \
-				"console=ttyS0,115200 " \
-				"root=/dev/mtdblock4 " \
+#if defined(CONFIG_BB9G45)
+#define BOOTARGS_CONSOLE	"fbcon=rotate:0 console=tty0 " \
+				"console=ttyS0,115200 "
+#elif defined(CONFIG_BB9263)
+#define BOOTARGS_CONSOLE	"fbcon=rotate:3 console=tty0 " \
+				"console=ttyS0,115200 "
+#endif
+#define BOOTARGS_NAND		"root=/dev/mtdblock4 " \
 				"mtdparts=atmel_nand:128k(bootstrap)ro," \
 				"256k(uboot)ro,1664k(env)," \
 				"2M(linux)ro,-(root) rw " \
 				"rootfstype=jffs2"
-
+#define CONFIG_BOOTARGS		BOOTARGS_CONSOLE BOOTARGS_NAND
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
 

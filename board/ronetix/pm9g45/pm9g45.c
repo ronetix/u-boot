@@ -189,7 +189,7 @@ static void pm9g45_macb_hw_init(void)
 #endif
 
 #ifdef CONFIG_LCD
-#if 0
+#if defined(CONFIG_BB9263)
 /*
  * LCD name TX09D50VM1CCA
  */
@@ -209,7 +209,7 @@ vidinfo_t panel_info = {
 	vl_lower_margin:0,
 	mmio:		AT91SAM9G45_LCDC_BASE,
 };
-#endif
+#elif defined(CONFIG_BB9G45)
 /*
  * LCD name GATW70SN8H1E0
  */
@@ -229,6 +229,7 @@ vidinfo_t panel_info = {
 	vl_lower_margin:13,
 	mmio:		AT91SAM9G45_LCDC_BASE,
 };
+#endif
 
 void lcd_enable(void)
 {
