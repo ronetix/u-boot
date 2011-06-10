@@ -154,7 +154,11 @@
 #define CONFIG_LCD_INFO_BELOW_LOGO	1
 #define CONFIG_SYS_WHITE_ON_BLACK	1
 #define CONFIG_ATMEL_LCD		1
+#if defined(CONFIG_BB9G45)
+#define CONFIG_ATMEL_LCD_BGR565		1
+#else
 #define CONFIG_ATMEL_LCD_RGB565		1
+#endif
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 
 /* board specific(not enough SRAM) */
