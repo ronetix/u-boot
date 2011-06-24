@@ -248,6 +248,7 @@ static int pm9263_lcd_hw_psram_init(void)
 	if ((readw(PHYS_PSRAM) != 0x1234) || (readw(PHYS_PSRAM+2) != 0x5678)) {
 		/* try with CRE=1 (MT45W2M16A) */
 		at91_set_pio_value(PSRAM_CRE_PIN, 1); /* set PSRAM_CRE_PIN to '1' */
+		udelay(500);
 
 		/* write RCR of the PSRAM */
 		x = readw(PSRAM_CTRL_REG);
@@ -401,6 +402,7 @@ int board_init(void)
 	at91_uhp_hw_init();
 #endif
 #ifdef CONFIG_LCD
+	timer_init();
 	pm9263_lcd_hw_init();
 #endif
 	return 0;
