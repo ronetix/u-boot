@@ -95,7 +95,7 @@
 #define CONFIG_SYS_SDRC_TR_VAL1		0x3AA
 /* SDRAMC_CR - Configuration register*/
 #define CONFIG_SYS_SDRC_CR_VAL							\
-		(AT91_SDRAMC_NC_10 |						\
+		(AT91_SDRAMC_NC_9 |						\
 		 AT91_SDRAMC_NR_13 |						\
 		 AT91_SDRAMC_NB_4 |						\
 		 AT91_SDRAMC_CAS_2 |						\
@@ -227,7 +227,7 @@
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM		0x20000000
-#define PHYS_SDRAM_SIZE		0x08000000	/* 128 megs */
+#define PHYS_SDRAM_SIZE		0x04000000	/* 64 megs */
 
 /* DataFlash */
 #define CONFIG_ATMEL_DATAFLASH_SPI
