@@ -39,6 +39,9 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/io.h>
 #include <asm/arch/hardware.h>
+#ifdef CONFIG_HAS_DATAFLASH
+#include <dataflash.h>
+#endif
 #ifdef CONFIG_LCD
 #include <lcd.h>
 #include <atmel_lcdc.h>
@@ -58,6 +61,28 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Miscelaneous platform dependent initialisations
  */
+#ifdef CONFIG_HAS_DATAFLASH
+AT91S_DATAFLASH_INFO dataflash_info[CONFIG_SYS_MAX_DATAFLASH_BANKS];
+
+struct dataflash_addr cs[CONFIG_SYS_MAX_DATAFLASH_BANKS] = {
+       {CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0, 0},       /* Logical adress, CS */
+};
+
+/*define the area offsets*/
+#ifdef CONFIG_SYS_USE_DATAFLASH
+dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
+       {0x00000000, 0x000041FF, FLAG_PROTECT_SET,   0, "Bootstrap"},
+       {0x00004200, 0x000083FF, FLAG_PROTECT_CLEAR, 0, "Environment"},
+       {0x00008400, 0x00041FFF, FLAG_PROTECT_SET,   0, "U-Boot"},
+       {0x00042000, 0x00251FFF, FLAG_PROTECT_CLEAR, 0, "Kernel"},
+       {0x00252000, 0xFFFFFFFF, FLAG_PROTECT_CLEAR, 0, "FS"},
+};
+#else
+dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
+       {0x00000000, 0xFFFFFFFF, FLAG_PROTECT_CLEAR,   0, ""},
+};
+#endif
+#endif /* CONFIG_HAS_DATAFLASH */
 
 #ifdef CONFIG_DS2401
 
@@ -350,6 +375,10 @@ int board_init(void)
 	pm9g45_nand_hw_init();
 #endif
 
+#ifdef CONFIG_ATMEL_SPI
+	at91_spi0_hw_init(1 << 0);
+#endif
+
 #ifdef CONFIG_DS2401
 	ds2401_hw_init();
 	ds2401_init(&DS2401_funcs);
@@ -400,3 +429,43 @@ int board_eth_init(bd_t *bis)
 #endif
 	return rc;
 }
+
+/* SPI chip select control */
+#ifdef CONFIG_ATMEL_SPI
+#include <spi.h>
+
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	return bus == 0 && cs < 2;
+}
+
+void spi_cs_activate(struct spi_slave *slave)
+{
+	switch(slave->cs) {
+		case 1:
+			at91_set_pio_output(AT91_PIO_PORTB, 18, 0);
+			at91_set_pio_value(AT91_PIO_PORTB, 18, 0);
+			break;
+		case 0:
+		default:
+			at91_set_pio_output(AT91_PIO_PORTB, 3, 0);
+			at91_set_pio_value(AT91_PIO_PORTB, 3, 0);
+			break;
+	}
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	switch(slave->cs) {
+		case 1:
+			at91_set_pio_output(AT91_PIO_PORTB, 18, 1);
+			at91_set_pio_value(AT91_PIO_PORTB, 18, 1);
+			break;
+		case 0:
+		default:
+			at91_set_pio_output(AT91_PIO_PORTB, 3, 1);
+			at91_set_pio_value(AT91_PIO_PORTB, 3, 1);
+		break;
+	}
+}
+#endif /* CONFIG_ATMEL_SPI */

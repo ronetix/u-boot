@@ -108,6 +108,26 @@
 #define CONFIG_SYS_NO_FLASH		1
 #undef CONFIG_CMD_FLASH
 
+/* DataFlash */
+#if 0 /* FIXME: when DataFlash is populated test it */
+#define CONFIG_ATMEL_SPI
+#define CONFIG_ATMEL_DATAFLASH_SPI
+#define CONFIG_HAS_DATAFLASH
+#define CONFIG_SYS_SPI_WRITE_TOUT		(5 * CONFIG_SYS_HZ)
+#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
+#define AT91_SPI_CLK				15000000
+#define DATAFLASH_TCSS				(0x1a << 16)
+#define DATAFLASH_TCHS				(0x1 << 24)
+#endif
+
+/* SPI Flash */
+#define CONFIG_ATMEL_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SPI
+#define CONFIG_SPI_FLASH		1
+#define CONFIG_SPI_FLASH_ATMEL		1
+#define CONFIG_SYS_MAX_DATAFLASH_BANKS	1
+
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_NAND_MAX_CHIPS		1
