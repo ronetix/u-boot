@@ -346,8 +346,9 @@ void lcd_show_board_info(void)
 		nand_size >> 20);
 
 #ifdef CONFIG_HAS_DATAFLASH
-	lcd_printf ("%ld MB DataFlash\n",
-		dataflash_size >> 20);
+	if ((dataflash_size >> 20) > 0)
+		lcd_printf ("%ld MB DataFlash\n",
+			dataflash_size >> 20);
 #endif
 }
 #endif /* CONFIG_LCD_INFO */
@@ -375,6 +376,9 @@ int board_init(void)
 	pm9g45_nand_hw_init();
 #endif
 
+#ifdef CONFIG_HAS_DATAFLASH
+	at91_spi0_hw_init(1 << 0);
+#endif
 #ifdef CONFIG_ATMEL_SPI
 	at91_spi0_hw_init(1 << 0);
 #endif
