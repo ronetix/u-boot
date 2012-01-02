@@ -218,7 +218,7 @@
 #define BOOTARGS_NAND		"root=/dev/mtdblock4 " \
 				"mtdparts=atmel_nand:128k(bootstrap)ro," \
 				"256k(uboot)ro,1664k(env)," \
-				"2M(linux)ro,-(root) rw " \
+				"3M(linux)ro,-(root) rw " \
 				"rootfstype=jffs2"
 #endif
 #define CONFIG_BOOTARGS		BOOTARGS_CONSOLE BOOTARGS_NAND
