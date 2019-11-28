@@ -67,120 +67,66 @@
 #define UPDATE_M4_ENV ""
 #endif
 
-#define CONFIG_MFG_ENV_SETTINGS \
-	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
-		"rdinit=/linuxrc " \
-		"g_mass_storage.stall=0 g_mass_storage.removable=1 " \
-		"g_mass_storage.idVendor=0x066F g_mass_storage.idProduct=0x37FF "\
-		"g_mass_storage.iSerialNumber=\"\" "\
-		"clk_ignore_unused "\
-		"\0" \
-	"initrd_addr=0x83800000\0" \
-	"initrd_high=0xffffffff\0" \
-	"bootcmd_mfg=run mfgtool_args;bootz ${loadaddr} ${initrd_addr} ${fdt_addr};\0" \
+#define MY_CONFIG_NETWORK_SETTINGS \
+	"serverip=192.168.3.60\0" \
+	"ipaddr=192.168.3.222\0" \
+	"ethaddr=02:00:99:31:79:30\0"
 
-#define CONFIG_DFU_ENV_SETTINGS \
-	"dfu_alt_info=image raw 0 0x800000;"\
-		"u-boot raw 0 0x4000;"\
-		"bootimg part 0 1;"\
-		"rootfs part 0 2\0" \
+/*
+ * Use:
+ * 		bootmode=mix
+ * 		bootmode=mmc
+ * 		bootmode=net
+ */
+#define MY_CONFIG_BOOT_MODE	"boot-mode=mmc\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	UPDATE_M4_ENV \
-	CONFIG_MFG_ENV_SETTINGS \
-	CONFIG_DFU_ENV_SETTINGS \
-	"script=boot.scr\0" \
+	MY_CONFIG_NETWORK_SETTINGS \
+	MY_CONFIG_BOOT_MODE \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
-	"fdt_high=0xffffffff\0" \
-	"initrd_high=0xffffffff\0" \
 	"fdt_file=imx7d-cm.dtb\0" \
 	"fdt_addr=0x83000000\0" \
-	"boot_fdt=try\0" \
-	"ip_dyn=no\0" \
-	"serverip=192.168.3.60\0" \
-	"ipaddr=192.168.3.222\0" \
-	"ethaddr=02:00:99:31:79:30\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
-	"mmcautodetect=yes\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
-	"loadbootscript=" \
-		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
-		"source\0" \
-	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
+		"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
+		"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	\
+	"bootmmc=" \
+		"echo Booting from SD card ...; " \
 		"run mmcargs; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if run loadfdt; then " \
-				"bootz ${loadaddr} - ${fdt_addr}; " \
-			"else " \
-				"if test ${boot_fdt} = try; then " \
-					"bootz; " \
-				"else " \
-					"echo WARN: Cannot load the DT; " \
-				"fi; " \
-			"fi; " \
-		"else " \
-			"bootz; " \
-		"fi;\0" \
-\
-	"mixboot=echo Boot Kernel from TFTP, RootFs from MMC ...;"\
-		"run mmcargs; " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"${get_cmd} ${fdt_addr} ${fdt_file};"\
-		"${get_cmd} ${image};"\
+		"mmc dev ${mmcdev};" \
+		"run loadimage; " \
+		"run loadfdt; " \
 		"bootz ${loadaddr} - ${fdt_addr}; " \
-\
+		"\0" \
+	\
+	"bootmix=" \
+		"echo Boot Kernel and FDT from TFTP, RootFs from SD card ...; " \
+		"run mmcargs; " \
+		"mmc dev ${mmcdev};" \
+		"tftp ${fdt_addr} ${fdt_file}; " \
+		"tftp ${image}; " \
+		"bootz ${loadaddr} - ${fdt_addr}; " \
+		"\0" \
+	\
 	"netargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/nfs " \
-	"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
-		"netboot=echo Booting from net ...; " \
+		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp" \
+		"\0" \
+	"bootnet=" \
+		"echo Booting from net ...; " \
 		"run netargs; " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"${get_cmd} ${image}; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-				"bootz ${loadaddr} - ${fdt_addr}; " \
-			"else " \
-				"if test ${boot_fdt} = try; then " \
-					"bootz; " \
-				"else " \
-					"echo WARN: Cannot load the DT; " \
-				"fi; " \
-			"fi; " \
-		"else " \
-			"bootz; " \
-		"fi;\0"
+		"tftp ${image}; " \
+		"tftp ${fdt_addr} ${fdt_file}; " \
+		"bootz ${loadaddr} - ${fdt_addr}; " \
+		"\0"
 
-#define CONFIG_BOOTCOMMAND \
-		"mmc dev ${mmcdev};" \
-		"mmc dev ${mmcdev};" \
-		"if mmc rescan; then " \
-			"if run loadbootscript; then " \
-				"run bootscript; " \
-			"else " \
-				"if run loadimage; then " \
-					"run mixboot; " \
-				"else " \
-					"run netboot; " \
-				"fi; " \
-			"fi; " \
-	   "else "  \
-	   	   "run netboot;" \
-	   "fi"
+#define CONFIG_BOOTCOMMAND "run boot${boot-mode}"
 
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000000)
