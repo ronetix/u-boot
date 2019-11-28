@@ -166,17 +166,21 @@
 		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev};" \
-	   "mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			   "if run loadimage; then " \
-				   "run mixboot; " \
-			   "else run netboot; " \
-			   "fi; " \
-		   "fi; " \
-	   "else run netboot; fi"
+		"mmc dev ${mmcdev};" \
+		"mmc dev ${mmcdev};" \
+		"if mmc rescan; then " \
+			"if run loadbootscript; then " \
+				"run bootscript; " \
+			"else " \
+				"if run loadimage; then " \
+					"run mixboot; " \
+				"else " \
+					"run netboot; " \
+				"fi; " \
+			"fi; " \
+	   "else "  \
+	   	   "run netboot;" \
+	   "fi"
 
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000000)
