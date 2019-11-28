@@ -1,0 +1,15 @@
+= Ronetix U-BOOT for i.MX7-CM
+
+Building the U-BOOT outsides of Yocto:
+
+Setup the cross compiler, for example:
+[source,console]
+$: export CROSS_COMPILE=/opt/cross/arm-ronetix-eabi-8.3.0/bin/arm-ronetix-eabi-
+
+[source,console]
+$: make imx7_cm_defconfig
+$: make
+
+Programming U-BOOT to a SD card at address 0x400:
+[source,console]
+sudo dd if=u-boot-dtb.imx of=/dev/sdc bs=1k seek=1 conv=fsync
