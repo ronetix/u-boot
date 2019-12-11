@@ -2,7 +2,6 @@
 /*
  * Copyright 2018 NXP
  */
-
 #ifndef __IMX8M_EVK_H
 #define __IMX8M_EVK_H
 
