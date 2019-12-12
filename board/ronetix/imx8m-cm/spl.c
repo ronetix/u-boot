@@ -25,15 +25,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern struct dram_timing_info dram_timing_b0;
-
 static void spl_dram_init(void)
 {
-	/* ddr init */
-	if ((get_cpu_rev() & 0xfff) == CHIP_REV_2_1)
-		ddr_init(&dram_timing);
-	else
-		ddr_init(&dram_timing_b0);
+	ddr_init(&dram_timing);
 }
 
 #define I2C_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_HYS | PAD_CTL_PUE)
