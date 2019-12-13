@@ -80,15 +80,16 @@
 
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_XCV_TYPE             RGMII
-#define CONFIG_FEC_MXC_PHYADDR          0
+#define CONFIG_FEC_MXC_PHYADDR          1
 #define FEC_QUIRK_ENET_MAC
 
-#define CONFIG_PHY_GIGE
 #define IMX_FEC_BASE			0x30BE0000
-
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_ATHEROS
 #endif
+
+#define MY_CONFIG_NETWORK_SETTINGS \
+	"serverip=192.168.3.60\0" \
+	"ipaddr=192.168.3.223\0" \
+	"ethaddr=02:00:99:31:79:31\0"
 
 #define CONFIG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
@@ -104,6 +105,7 @@
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	CONFIG_MFG_ENV_SETTINGS \
+	MY_CONFIG_NETWORK_SETTINGS \
 	"script=boot.scr\0" \
 	"image=Image\0" \
 	"console=ttymxc0,115200 earlycon=ec_imx6q,0x30860000,115200\0" \
@@ -168,7 +170,7 @@
 	   "else booti ${loadaddr} - ${fdt_addr}; fi"
 
 /* Link Definitions */
-#define CONFIG_LOADADDR			0x40480000
+#define CONFIG_LOADADDR					0x40480000
 
 #define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
 
@@ -181,9 +183,9 @@
 
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_ENV_OFFSET               (64 * SZ_64K)
-#define CONFIG_ENV_SIZE			0x1000
-#define CONFIG_SYS_MMC_ENV_DEV		1   /* USDHC2 */
-#define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
+#define CONFIG_ENV_SIZE					0x1000
+#define CONFIG_SYS_MMC_ENV_DEV			1	/* USDHC2 */
+#define CONFIG_MMCROOT					"/dev/mmcblk1p2"  /* USDHC2 */
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		((CONFIG_ENV_SIZE + (2 * 1024)) * 1024)
@@ -192,14 +194,14 @@
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE					0x40000000 /* 1GB DDR */
 
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM
+#define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
 					(PHYS_SDRAM_SIZE >> 1))
 
-#define CONFIG_BAUDRATE			115200
+#define CONFIG_BAUDRATE					115200
 
 #define CONFIG_MXC_UART
-#define CONFIG_MXC_UART_BASE		UART1_BASE_ADDR
+#define CONFIG_MXC_UART_BASE			UART1_BASE_ADDR
 
 /* Monitor Command Prompt */
 #undef CONFIG_SYS_PROMPT
@@ -215,7 +217,7 @@
 
 #define CONFIG_CMD_MMC
 
-#define CONFIG_SYS_FSL_USDHC_NUM	2
+#define CONFIG_SYS_FSL_USDHC_NUM		2
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
@@ -225,7 +227,9 @@
 #define CONFIG_CMD_FUSE
 
 /* I2C Configs */
-#define CONFIG_SYS_I2C_SPEED		  100000
+#define CONFIG_SYS_I2C_SPEED		  	100000
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
+
 
 #define CONFIG_OF_SYSTEM_SETUP
 
