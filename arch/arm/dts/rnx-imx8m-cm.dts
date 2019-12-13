@@ -11,7 +11,7 @@
 #include "fsl-imx8mq.dtsi"
 
 / {
-	model = "Freescale i.MX8MQ EVK";
+	model = "Ronetix i.MX8M-CM";
 	compatible = "fsl,imx8mq-evk", "fsl,imx8mq";
 
 	chosen {
@@ -215,20 +215,53 @@
 &fec1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_fec1>;
-	phy-mode = "rgmii-id";
+	phy-mode = "rgmii";
 	phy-handle = <&ethphy0>;
 	fsl,magic-packet;
 	status = "okay";
 
+	/* 
+	 * The skew settings should be in the ethernet-phy subnode, but 
+	 * currently this doesn't work.
+	 * 
+	 * All skews are offset since hardware skew values for the ksz9031
+	 * range from a negative skew to a positive skew. The increment 
+	 * step is 60ps. 
+	 * See the micrel-ksz90x1.txt Documentation file for details.
+	 */ 
+	
+	/* -900ps up t0 +960ps 
+	 *   0 	(reg val  0) -> -900 ps
+	 *  900	(reg val 15) ->    0 ps
+	 * 1860	(reg val 31) -> +960 ps
+	 *  
+	 */
+	rxc-skew-ps = <1860>; /*  */
+	txc-skew-ps = <1860>; /*  */
+	
+	/* -420ps up to 480ps 
+	 *   0 (reg val  0)	-> -420 ps
+	 * 420 (reg val  7)	->    0 ps
+	 * 900 (reg val 15)	-> +480 ps
+	 * */
+	txd0-skew-ps = <420>; /* 0 ps */
+	txd1-skew-ps = <420>; /* 0 ps */
+	txd2-skew-ps = <420>; /* 0 ps */
+	txd3-skew-ps = <420>; /* 0 ps */
+	rxd0-skew-ps = <420>; /* 0 ps */
+	rxd1-skew-ps = <420>; /* 0 ps */
+	rxd2-skew-ps = <420>; /* 0 ps */
+	rxd3-skew-ps = <420>; /* 0 ps */
+	txen-skew-ps = <420>; /* 0 ps */
+	rxdv-skew-ps = <420>; /* 0 ps */
+	
 	mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		ethphy0: ethernet-phy@0 {
+		ethphy0: ethernet-phy@1{
 			compatible = "ethernet-phy-ieee802.3-c22";
-			reg = <0>;
-			at803x,led-act-blind-workaround;
-			at803x,eee-disabled;
+			reg = <1>;
 		};
 	};
 };
@@ -238,7 +271,13 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c1>;
 	status = "okay";
+};
 
+&i2c2 {
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c2>;
+	status = "okay";
 	pmic: pfuze100@08 {
 		compatible = "fsl,pfuze100";
 		reg = <0x08>;
@@ -326,13 +365,6 @@
 	};
 };
 
-&i2c2 {
-	clock-frequency = <100000>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c2>;
-	status = "disabled";
-};
-
 &pwm2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm2>;
@@ -401,7 +433,7 @@
 	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
 	bus-width = <4>;
-	cd-gpios = <&gpio2 12 GPIO_ACTIVE_LOW>;
+	cd-gpios = <&gpio2 12 GPIO_ACTIVE_HIGH>;
 	vmmc-supply = <&reg_usdhc2_vmmc>;
 	status = "okay";
 };
