@@ -1,10 +1,13 @@
 = Ronetix U-BOOT for i.MX7-CM
 
-Building the U-BOOT outsides of Yocto:
-
 Setup the cross compiler, for example:
 [source,console]
 $: export CROSS_COMPILE=/opt/cross/arm-ronetix-eabi-8.3.0/bin/arm-ronetix-eabi-
+
+Clone the latest revision of the repo
+[source,console]
+$: git clone https://github.com/ronetix/u-boot.git u-boot-ronetix --depth=1
+$: cd u-boot-ronetix
 
 [source,console]
 $: make imx7_cm_defconfig
@@ -13,3 +16,40 @@ $: make
 Programming U-BOOT to a SD card at address 0x400:
 [source,console]
 sudo dd if=u-boot-dtb.imx of=/dev/sdc bs=1k seek=1 conv=fsync
+
+
+= Ronetix U-BOOT for i.MX8M-CM
+Setup the cross compiler, for example:
+[source,console]
+$: export CROSS_COMPILE=/opt/cross/aarch64-ronetix-elf/bin/aarch64-ronetix-elf-
+
+Clone the latest revision of the repo
+[source,console]
+$: git clone https://github.com/ronetix/u-boot.git u-boot-ronetix --depth=1
+$: cd u-boot-ronetix
+
+Get and Build the ARM Trusted firmware
+[source,console]
+$: git clone https://source.codeaurora.org/external/imx/imx-atf
+$: cd imx-atf
+$: git checkout v2.2 -b v2.2
+$: make PLAT=imx8mq bl31
+$: cd ..
+$: cp imx-atf/build/imx8mq/release/bl31.bin .
+
+Get the DDR and HDMI firmware
+[source,console]
+$: wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-7.9.bin
+$: chmod +x firmware-imx-7.9.bin
+$: ./firmware-imx-7.9.bin
+$: cp firmware-imx-7.9/firmware/hdmi/cadence/signed_hdmi_imx8m.bin .
+$: cp firmware-imx-7.9/firmware/ddr/synopsys/lpddr4*.bin .
+
+Configure and build U-BOOT
+[source,console]
+$: make imx8m_cm_defconfig
+$: make flash.bin
+
+Programming U-BOOT to a SD card at address 0x8400:
+[source,console]
+$: sudo dd if=flash.bin of=/dev/sdc bs=1k seek=33 conv=fsync
