@@ -32,7 +32,7 @@ Get and Build the ARM Trusted firmware
 [source,console]
 $: git clone https://source.codeaurora.org/external/imx/imx-atf
 $: cd imx-atf
-$: git checkout v2.2 -b v2.2
+$: git checkout rel_imx_4.14.62_1.0.0_beta -b rel_imx_4.14.62_1.0.0_beta
 $: make PLAT=imx8mq bl31
 $: cd ..
 $: cp imx-atf/build/imx8mq/release/bl31.bin .
