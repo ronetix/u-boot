@@ -1,5 +1,7 @@
 = Ronetix U-BOOT for i.MX7-CM
 
+Based on the U-BOOT release v2019.10
+
 Setup the cross compiler, for example:
 [source,console]
 $: export CROSS_COMPILE=/opt/cross/arm-ronetix-eabi-8.3.0/bin/arm-ronetix-eabi-
@@ -19,6 +21,9 @@ sudo dd if=u-boot-dtb.imx of=/dev/sdc bs=1k seek=1 conv=fsync
 
 
 = Ronetix U-BOOT for i.MX8M-CM
+Based on the U-BOOT release v2019.10.
+Keep in mind, that in this release no USB support for i.MX8M is available.
+
 Setup the cross compiler, for example:
 [source,console]
 $: export CROSS_COMPILE=/opt/cross/aarch64-ronetix-elf/bin/aarch64-ronetix-elf-
