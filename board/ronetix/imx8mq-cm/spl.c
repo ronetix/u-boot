@@ -214,54 +214,66 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
-static unsigned int *mem_test(unsigned long start, int len)
+static uint64_t mem_block_test(uint64_t start, int len, uint64_t *pattern)
 {
-	int i, n;
-	unsigned int *p = (unsigned int *)start;
+	int i;
+	uint64_t *p;
+	uint64_t val;
 
-	len = len / (sizeof(unsigned int));
+	debug("%s(start = 0x%llX, size = %d)\n", __FUNCTION__, start, len);
 
-	printf("%s(len = %d) .", __FUNCTION__, len);
+	len = len / (sizeof(unsigned long));
 
-	for (i = n = 0; i < len;)
+	p = (uint64_t *)start;
+	val = *pattern;
+
+	for (i = 0; i < len; i++)
 	{
-		*p++ = i++;
-		*p++ = i++;
-		*p++ = i++;
-		*p++ = i++;
-
-		if (++n == 1024 * 1024)
-		{
-			printf(".");
-			n = 0;
-		}
+		*p++ = val++;
 	}
 
-	printf("\n");
-	printf("reading ...");
+	p = (uint64_t *)start;
+	val = *pattern;
 
-	p = (unsigned int *)start;
-
-	for (i = n = 0; i < len; i++)
+	for (i = 0; i < len; i++)
 	{
-		if (*p != i)
-		{
-			printf("\n");
-			return p;
-		}
+		if (*p != val++)
+			return (uint64_t)p;
 
 		p++;
-
-		if (++n == 1024 * 1024 * 4)
-		{
-			printf(".");
-			n = 0;
-		}
 	}
 
-	printf("\n");
+	*pattern = val;
+	return 0;
+}
 
-	return NULL;
+#define BLOCK_SIZE				(1024 * 1024)		/* 1 MiB */
+#define TEST_BLOCK_SIZE			(1 * 1024)			/* 1 KiB */
+static int mem_test(void)
+{
+	int i;
+	uint64_t pattern = 0x1234567800000000;
+	uint64_t addr = CONFIG_SYS_SDRAM_BASE;
+
+	printf("Testing first %dKB of every MB memory ... ", TEST_BLOCK_SIZE / 1024);
+
+	for (i = 0; i < PHYS_SDRAM_SIZE / BLOCK_SIZE; i++)
+	{
+		uint64_t ret;
+
+		ret = mem_block_test(addr, TEST_BLOCK_SIZE, &pattern);
+		if (ret)
+		{
+			printf("failed at 0x%llX\n", ret);
+			return 1;
+		}
+
+		addr += BLOCK_SIZE;
+	}
+
+	printf("OK\n");
+
+	return 0;
 }
 
 void board_init_f(ulong dummy)
@@ -290,21 +302,15 @@ void board_init_f(ulong dummy)
 	enable_tzc380();
 
 	/* Adjust pmic voltage to 1.0V for 800M */
-	setup_i2c(I2C_PMIC, CONFIG_SYS_MXC_I2C1_SPEED, 0x7f, &i2c_pad_info1);
+	setup_i2c(I2C_PMIC, CONFIG_SYS_MXC_I2C_SPEED, 0x7f, &i2c_pad_info1);
 
 	power_init_board();
 
 	/* DDR initialization */
 	spl_dram_init();
 
-//	unsigned int *p = mem_test(CONFIG_SYS_SDRAM_BASE, 1024 * 1024 * 1024);
-	unsigned int *p = mem_test(CONFIG_SYS_SDRAM_BASE, 1024 * 1024 * 1);
-
-	printf("mem_test() - returns %lx\n", (unsigned long)p);
-	if (p)
-		printf("mem_test() - Bad\n");
-	else
-		printf("mem_test() - OK\n");
+	ret = mem_test();
+	while (ret);
 
 	board_init_r(NULL, 0);
 }
