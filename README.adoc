@@ -1,0 +1,27 @@
+= Ronetix U-BOOT for i.MX8MQ-CM
+Based on the U-BOOT rbranch imx_v2019.04_4.19.35_1.1.0
+This branch includes USB support.
+
+Setup the cross compiler, for example:
+[source,console]
+$: export CROSS_COMPILE=/opt/cross/aarch64-ronetix-elf/bin/aarch64-ronetix-elf-
+
+Clone the latest revision of the repo
+[source,console]
+$: git clone https://github.com/ronetix/u-boot.git u-boot-ronetix
+$: cd u-boot-ronetix
+$: git checkout origin/imx_v2019.04_4.19.35_1.1.0 -b imx_v2019.04_4.19.35_1.1.0
+
+Get and Build the ARM Trusted firmware
+[source,console]
+$: /prepare_flash_bin.sh
+
+Configure and build U-BOOT
+[source,console]
+$: make imx8mq_cm_defconfig
+$: make flash.bin
+
+Programming U-BOOT to a SD card at address 0x8400:
+[source,console]
+$: sudo dd if=flash.bin of=/dev/sdc bs=1k seek=33 conv=fsync
+
