@@ -1270,6 +1270,7 @@ SPL: spl/u-boot-spl.bin FORCE
 
 ifeq ($(CONFIG_ARCH_IMX8M)$(CONFIG_ARCH_IMX8), y)
 flash.bin: spl/u-boot-spl.bin u-boot.itb FORCE
+	rm -f spl/.u-boot-spl.cfgout.cmd
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 endif
 
