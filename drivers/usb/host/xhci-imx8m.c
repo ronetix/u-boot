@@ -119,6 +119,9 @@ static int xhci_imx8m_probe(struct udevice *dev)
 	struct imx8m_xhci *ctx = &imx8m_xhci;
 	int ret = 0;
 
+	if (dev->seq >= CONFIG_USB_MAX_CONTROLLER_COUNT)
+		return -ENODEV;
+
 	ctx->hcd = (struct xhci_hccr *)(ctr_data[dev->seq].ctr_addr);
 	ctx->dwc3_reg = (struct dwc3 *)((char *)(ctx->hcd) + DWC3_REG_OFFSET);
 	ctx->usbmix_reg = (struct imx8m_usbmix *)((char *)(ctx->hcd) +
