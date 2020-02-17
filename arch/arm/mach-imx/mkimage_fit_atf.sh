@@ -8,7 +8,7 @@
 
 [ -z "$BL31" ] && BL31="bl31.bin"
 [ -z "$TEE_LOAD_ADDR" ] && TEE_LOAD_ADDR="0xfe000000"
-[ -z "$ATF_LOAD_ADDR" ] && ATF_LOAD_ADDR="0x00910000"
+[ -z "$ATF_LOAD_ADDR" ] && ATF_LOAD_ADDR="0x00900000"
 [ -z "$BL33_LOAD_ADDR" ] && BL33_LOAD_ADDR="0x40200000"
 
 if [ ! -f $BL31 ]; then
