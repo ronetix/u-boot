@@ -23,6 +23,7 @@ sudo dd if=u-boot-dtb.imx of=/dev/sdc bs=1k seek=1 conv=fsync
 = Ronetix U-BOOT for i.MX8M-CM
 Based on the U-BOOT release v2019.10.
 Keep in mind, that in this release no USB support for i.MX8M is available.
+For building U-BOOT with USB support use the branch imx_v2019.04_4.19.35_1.1.0
 
 Setup the cross compiler, for example:
 [source,console]
