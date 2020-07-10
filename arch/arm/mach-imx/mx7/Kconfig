@@ -69,6 +69,14 @@ config TARGET_COLIBRI_IMX7
 	select DM_THERMAL
 	imply CMD_DM
 
+config TARGET_IMX7_CM
+	bool "imx7-cm"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	select MX7D
+	imply CMD_DM
+
 endchoice
 
 config SYS_SOC
@@ -80,5 +88,6 @@ source "board/novtech/meerkat96/Kconfig"
 source "board/technexion/pico-imx7d/Kconfig"
 source "board/toradex/colibri_imx7/Kconfig"
 source "board/warp7/Kconfig"
+source "board/ronetix/imx7-cm/Kconfig"
 
 endif
