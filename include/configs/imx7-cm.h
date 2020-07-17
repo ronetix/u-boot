@@ -86,7 +86,7 @@
 	MY_CONFIG_BOOT_MODE \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
-	"fdt_file=imx7d-cm.dtb\0" \
+	"fdt_file=imx7-cm.dtb\0" \
 	"fdt_addr=0x83000000\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
