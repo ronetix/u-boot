@@ -58,96 +58,6 @@
 #define IMX_FEC_BASE			0x30BE0000
 #endif
 
-#if 0
-/*
- * Another approach is add the clocks for inmates into clks_init_on
- * in clk-imx8mq.c, then clk_ingore_unused could be removed.
- */
-#define JAILHOUSE_ENV \
-	"jh_clk= \0 " \
-	"jh_mmcboot=setenv fdt_file imx8mq-cm-root.dtb; " \
-		"setenv jh_clk clk_ignore_unused; " \
-			   "if run loadimage; then " \
-				   "run mmcboot; " \
-			   "else run jh_netboot; fi; \0" \
-	"jh_netboot=setenv fdt_file imx8mq-cm-root.dtb; setenv jh_clk clk_ignore_unused; run netboot; \0 "
-
-#define CONFIG_MFG_ENV_SETTINGS \
-	CONFIG_MFG_ENV_SETTINGS_DEFAULT \
-	"initrd_addr=0x43800000\0" \
-	"initrd_high=0xffffffffffffffff\0" \
-	"emmc_dev=0\0"\
-	"sd_dev=1\0" \
-
-/* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
-	CONFIG_MFG_ENV_SETTINGS \
-	JAILHOUSE_ENV \
-	"script=boot.scr\0" \
-	"image=Image\0" \
-	"splashimage=0x50000000\0" \
-	"console=ttymxc0,115200\0" \
-	"fdt_addr=0x43000000\0"			\
-	"fdt_high=0xffffffffffffffff\0"		\
-	"boot_fdt=try\0" \
-	"fdt_file=imx8mq-cm.dtb\0" \
-	"initrd_addr=0x43800000\0"		\
-	"initrd_high=0xffffffffffffffff\0" \
-	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
-	"mmcautodetect=yes\0" \
-	"mmcargs=setenv bootargs ${jh_clk} console=${console} root=${mmcroot}\0 " \
-	"loadbootscript=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
-		"source\0" \
-	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if run loadfdt; then " \
-				"booti ${loadaddr} - ${fdt_addr}; " \
-			"else " \
-				"echo WARN: Cannot load the DT; " \
-			"fi; " \
-		"else " \
-			"echo wait for boot; " \
-		"fi;\0" \
-	"netargs=setenv bootargs ${jh_clk} console=${console} " \
-		"root=/dev/nfs " \
-		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
-	"netboot=echo Booting from net ...; " \
-		"run netargs;  " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"${get_cmd} ${loadaddr} ${image}; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-				"booti ${loadaddr} - ${fdt_addr}; " \
-			"else " \
-				"echo WARN: Cannot load the DT; " \
-			"fi; " \
-		"else " \
-			"booti; " \
-		"fi;\0"
-
-#define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			   "if run loadimage; then " \
-				   "run mmcboot; " \
-			   "else run netboot; " \
-			   "fi; " \
-		   "fi; " \
-	   "else booti ${loadaddr} - ${fdt_addr}; fi"
-
-#else
 
 #define MY_CONFIG_NETWORK_SETTINGS \
 	"serverip=192.168.3.60\0" \
@@ -156,8 +66,8 @@
 
 /*
  * Use:
- * 		bootmode=mix
- * 		bootmode=mmc
+ * 		boot-mode=mix
+ * 		boot-mode=sd
  */
 #define MY_CONFIG_BOOT_MODE	"boot-mode=mix\0"
 
@@ -181,7 +91,7 @@
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	\
-	"bootmmc=echo Booting from mmc ...; " \
+	"bootsd=echo Booting from SD card ...; " \
 		"run mmcargs; " \
 		"mmc dev ${mmcdev};" \
 		"run loadfdt; " \
@@ -198,8 +108,6 @@
 		"\0"
 
 #define CONFIG_BOOTCOMMAND "run boot${boot-mode}"
-
-#endif
 
 /* Link Definitions */
 #define CONFIG_LOADADDR			0x40480000
