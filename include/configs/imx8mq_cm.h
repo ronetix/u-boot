@@ -58,30 +58,25 @@
 #define IMX_FEC_BASE			0x30BE0000
 #endif
 
-
-#define MY_CONFIG_NETWORK_SETTINGS \
-	"serverip=192.168.3.60\0" \
-	"ipaddr=192.168.3.222\0" \
-	"ethaddr=02:00:99:31:79:30\0"
-
 /*
  * Use:
  * 		boot-mode=mix
  * 		boot-mode=sd
  */
-#define MY_CONFIG_BOOT_MODE	"boot-mode=mix\0"
+#define BOOT_MODE_ENV	\
+	"boot-mode=sd\0" \
+	"get_cmd=dhcp\0" \
+	"serverip=192.168.3.60\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	MY_CONFIG_NETWORK_SETTINGS \
-	MY_CONFIG_BOOT_MODE \
+	BOOT_MODE_ENV \
 	"script=boot.scr\0" \
 	"image=Image\0" \
 	"splashimage=0x50000000\0" \
 	"console=ttymxc0,115200\0" \
 	"fdt_addr=0x43000000\0"			\
 	"fdt_high=0xffffffffffffffff\0"		\
-	"boot_fdt=try\0" \
-	"fdt_file=imx8mq-cm.dtb\0" \
+	"fdt_file=imx8mq-cm_hdmi.dtb\0" \
 	"initrd_addr=0x43800000\0"		\
 	"initrd_high=0xffffffffffffffff\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
@@ -102,8 +97,8 @@
 	"bootmix=" \
 		"echo Boot Kernel and FDT from TFTP, RootFs from SD card ...; " \
 		"run mmcargs; " \
-		"tftp ${fdt_addr} ${fdt_file}; " \
-		"tftp ${image}; " \
+		"${get_cmd} ${fdt_addr} ${fdt_file}; " \
+		"${get_cmd} ${image}; " \
 		"booti ${loadaddr} - ${fdt_addr}; " \
 		"\0"
 
