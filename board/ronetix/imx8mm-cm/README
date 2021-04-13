@@ -1,0 +1,39 @@
+U-Boot for the Ronetix i.MX8MM-CM board
+
+Quick Start
+===========
+- Build the ARM Trusted firmware binary
+- Get ddr firmware
+- Build U-Boot
+- Boot
+
+Get and Build the ARM Trusted firmware
+======================================
+$ git clone https://source.codeaurora.org/external/imx/imx-atf
+$ cd imx-atf
+$ git checkout imx_4.19.35_1.0.0
+$ make PLAT=imx8mm bl31
+$ cd ..
+$ cp imx-atf/build/imx8mm/release/bl31.bin .
+
+Get the ddr firmware
+====================
+$ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.0.bin
+$ chmod +x firmware-imx-8.0.bin
+$ ./firmware-imx-8.0.bin
+$ cp firmware-imx-8.0/firmware/ddr/synopsys/lpddr4*.bin .
+
+Build U-Boot
+============
+$ /opt/cross/aarch64-ronetix-linux-9.2/bin/aarch64-ronetix-linux-gnu-
+$ make imx8mm_cm_defconfig
+$ export ATF_LOAD_ADDR=0x920000
+$ make flash.bin
+
+Burn the flash.bin to MicroSD card offset 33KB
+==============================================
+$sudo dd if=flash.bin of=/dev/sd[x] bs=1024 seek=33
+
+Boot
+====
+Set Boot switch to SD boot

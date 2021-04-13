@@ -1,0 +1,6 @@
+i.MX8MM-CM BOARD
+M:	Ilko Iliev <iliev@ronetix.com>
+S:	Maintained
+F:	board/ronetix/imx8mm_cm/
+F:	include/configs/imx8mm_cm.h
+F:	configs/imx8mm_cm_defconfig

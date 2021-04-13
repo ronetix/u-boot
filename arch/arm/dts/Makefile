@@ -783,6 +783,7 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 	imx8-giedi.dtb
 
 dtb-$(CONFIG_ARCH_IMX8M) += \
+	imx8mm-cm.dtb \
 	imx8mm-evk.dtb \
 	imx8mm-ddr4-evk.dtb \
 	imx8mm-ddr3l-val.dtb \
