@@ -23,7 +23,7 @@
 #include <power/pmic.h>
 #include <power/bd71837.h>
 #include <spl.h>
-#include "../common/pfuze.h"
+#include "../common/memtest.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -39,7 +39,7 @@ static struct i2c_pads_info i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = IMX8MQ_PAD_I2C2_SCL__I2C2_SCL | PC,
 		.gpio_mode = IMX8MQ_PAD_I2C2_SCL__GPIO5_IO16 | PC,
-		.gp = IMX_GPIO_NR(5, 14),
+		.gp = IMX_GPIO_NR(5, 16),
 	},
 	.sda = {
 		.i2c_mode = IMX8MQ_PAD_I2C2_SDA__I2C2_SDA | PC,
@@ -147,8 +147,9 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
-#ifdef CONFIG_POWER
 #define I2C_PMIC	1
+
+#ifdef CONFIG_POWER
 int power_init_board(void)
 {
 	struct pmic *p;
@@ -198,67 +199,8 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
-static uint64_t mem_block_test(uint64_t start, int len, uint64_t *pattern)
-{
-	int i;
-	uint64_t *p;
-	uint64_t val;
-
-	debug("%s(start = 0x%llX, size = %d)\n", __FUNCTION__, start, len);
-
-	len = len / (sizeof(unsigned long));
-
-	p = (uint64_t *)start;
-	val = *pattern;
-
-	for (i = 0; i < len; i++)
-	{
-		*p++ = val++;
-	}
-
-	p = (uint64_t *)start;
-	val = *pattern;
-
-	for (i = 0; i < len; i++)
-	{
-		if (*p != val++)
-			return (uint64_t)p;
-
-		p++;
-	}
-
-	*pattern = val;
-	return 0;
-}
-
-#define BLOCK_SIZE				(1024 * 1024)		/* 1 MiB */
-#define TEST_BLOCK_SIZE			(1 * 1024)			/* 1 KiB */
-static int mem_test(void)
-{
-	int i;
-	uint64_t pattern = 0x1234567800000000;
-	uint64_t addr = CONFIG_SYS_SDRAM_BASE;
-
-	printf("Fast testing %d MiB @ 0x%lx ... ", PHYS_SDRAM_SIZE / 1024 / 1024, (unsigned long)addr);
-
-	for (i = 0; i < PHYS_SDRAM_SIZE / BLOCK_SIZE; i++)
-	{
-		uint64_t ret;
-
-		ret = mem_block_test(addr, TEST_BLOCK_SIZE, &pattern);
-		if (ret)
-		{
-			printf("failed at 0x%lx\n", (unsigned long)ret);
-			return 1;
-		}
-
-		addr += BLOCK_SIZE;
-	}
-
-	printf("OK\n");
-
-	return 0;
-}
+#define BLOCK_SIZE			(1024 * 1024)		/* 1 MiB */
+#define TEST_SIZE			(1 * 1024)			/* 1 KiB */
 
 void board_init_f(ulong dummy)
 {
@@ -293,8 +235,9 @@ void board_init_f(ulong dummy)
 	/* DDR initialization */
 	spl_dram_init();
 
-	ret = mem_test();
-	while (ret);
+	ret = mem_test(CONFIG_SYS_SDRAM_BASE, PHYS_SDRAM_SIZE, BLOCK_SIZE, TEST_SIZE);
+	if (ret)
+		hang();
 
 	board_init_r(NULL, 0);
 }
