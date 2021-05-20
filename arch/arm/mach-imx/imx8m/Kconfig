@@ -93,6 +93,12 @@ config TARGET_IMX8MM_DDR4_EVK
 	select SUPPORT_SPL
 	select IMX8M_DDR4
 
+config TARGET_IMX8MN_CM
+	bool "Ronetix iMX8MN-CM SoM"
+	select IMX8MN
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
 config TARGET_IMX8MN_EVK
 	bool "imx8mn LPDDR4 EVK board"
 	select IMX8MN
@@ -149,6 +155,7 @@ source "board/freescale/imx8mm_evk/Kconfig"
 source "board/freescale/imx8mm_val/Kconfig"
 source "board/freescale/imx8mn_evk/Kconfig"
 source "board/freescale/imx8mp_evk/Kconfig"
+source "board/ronetix/imx8mn-cm/Kconfig"
 source "board/ronetix/imx8mm-cm/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/toradex/verdin-imx8mm/Kconfig"
