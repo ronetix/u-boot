@@ -36,19 +36,6 @@
 
 #define CONFIG_SYS_I2C
 
-#if defined(CONFIG_NAND_BOOT)
-#define CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SPL_DMA
-#define CONFIG_SPL_NAND_MXS
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_IDENT
-#define CONFIG_SYS_NAND_U_BOOT_OFFS 	0x4000000 /* Put the FIT out of first 64MB boot area */
-
-/* Set a redundant offset in nand FIT mtdpart. The new uuu will burn full boot image (not only FIT part) to the mtdpart, so we check both two offsets */
-#define CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND \
-	(CONFIG_SYS_NAND_U_BOOT_OFFS + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512 - 0x8400)
-#endif
-
 #endif
 
 #define CONFIG_CMD_READ
@@ -67,10 +54,6 @@
 #define FEC_QUIRK_ENET_MAC
 
 #define IMX_FEC_BASE			0x30BE0000
-#endif
-
-#ifdef CONFIG_NAND_BOOT
-#define MFG_NAND_PARTITION "mtdparts=gpmi-nand:64m(nandboot),16m(nandfit),32m(nandkernel),16m(nanddtb),8m(nandtee),-(nandrootfs)"
 #endif
 
 /*
@@ -185,17 +168,6 @@
 #define CONFIG_SYS_FSL_FSPI_AHB
 #endif
 
-#ifdef CONFIG_NAND_MXS
-#define CONFIG_CMD_NAND_TRIMFFS
-
-/* NAND stuff */
-#define CONFIG_SYS_MAX_NAND_DEVICE     1
-#define CONFIG_SYS_NAND_BASE           0x20000000
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_SYS_NAND_USE_FLASH_BBT
-#endif /* CONFIG_NAND_MXS */
-
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* USB configs */
@@ -226,10 +198,6 @@
 #define CONFIG_BMP_32BPP
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
-#endif
-
-#if defined(CONFIG_ANDROID_SUPPORT)
-#include "imx8mm_evk_android.h"
 #endif
 
 #endif
