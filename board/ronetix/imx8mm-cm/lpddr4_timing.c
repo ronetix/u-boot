@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  *
- * Generated code from MX8M_DDR_tool
+ * Generated code from MX8M_DDR_tool for i.MX8MM-CM board
  */
 
 #include <linux/kernel.h>
