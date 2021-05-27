@@ -63,6 +63,12 @@ config TARGET_IMX8MQ_DDR4_VAL
 	bool "imx8mq_ddr4_val"
 	select IMX8MQ
 
+config TARGET_IMX8MM_COMPACT_CM
+        bool "iMX8MM-COMPACT-CM board"
+        select IMX8MM
+        select SUPPORT_SPL
+        select IMX8M_LPDDR4
+
 config TARGET_IMX8MM_CM
         bool "iMX8MM-CM board"
         select IMX8MM
