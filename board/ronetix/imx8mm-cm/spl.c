@@ -20,6 +20,7 @@
 #include <power/pmic.h>
 #include <power/bd71837.h>
 #include <mmc.h>
+#include "../common/bd718xx.h"
 #include "../common/memtest.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -185,8 +186,7 @@ int power_init_board(void)
 	if (ret)
 		return ret;
 
-	pmic_reg_read(p, BD71837_REV, &reg);
-	printf("PMIC:  BD71837 ID=0x%02x\n", reg);
+	bd718xx_print_type(p);
 
 	/* decrease RESET key long push time from the default 10s to 10ms */
 	pmic_reg_write(p, BD71837_PWRONCONFIG1, 0x0);
