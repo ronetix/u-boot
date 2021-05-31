@@ -1,5 +1,4 @@
 if TARGET_IMX8MN_CM
-
 config SYS_BOARD
 	default "imx8mn-cm"
 
@@ -10,5 +9,17 @@ config SYS_CONFIG_NAME
 	default "imx8mn_cm"
 
 source "board/ronetix/common/Kconfig"
+endif
 
+if TARGET_IMX8MN_COMPACT_CM
+config SYS_BOARD
+	default "imx8mn-cm"
+
+config SYS_VENDOR
+	default "ronetix"
+
+config SYS_CONFIG_NAME
+	default "imx8mn_compact_cm"
+
+source "board/ronetix/common/Kconfig"
 endif

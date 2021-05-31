@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2019 NXP
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/usb/pd.h>
+#include "imx8mn.dtsi"
+#include "imx8mn-ronetix.dtsi"
+
+/ {
+	model = "Ronetix i.MX8MN-COMPACT-CM SoM";
+	compatible = "ronetix,imx8mn-compact-cm", "fsl,imx8mn";
+
+	reg_usb_otg1_vbus: regulator-usb-otg1-vbus {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_usb_otg1_vbus_reg>;
+		regulator-name = "usb_otg1_vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio1 12 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
+
+&usbotg1 {
+	vbus-supply = <&reg_usb_otg1_vbus>;
+	dr_mode = "host";
+	status = "okay";
+};
+
+&iomuxc {
+	pinctrl_usb_otg1_vbus_reg: pinctrl_usb_otg2_vbus_reg_grp {
+		fsl,pins = <
+			MX8MN_IOMUXC_GPIO1_IO12_GPIO1_IO12		0x19
+		>;
+	};
+};

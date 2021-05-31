@@ -99,6 +99,12 @@ config TARGET_IMX8MM_DDR4_EVK
 	select SUPPORT_SPL
 	select IMX8M_DDR4
 
+config TARGET_IMX8MN_COMPACT_CM
+	bool "Ronetix iMX8MN-COMPACT-CM SoM"
+	select IMX8MN
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
 config TARGET_IMX8MN_CM
 	bool "Ronetix iMX8MN-CM SoM"
 	select IMX8MN
