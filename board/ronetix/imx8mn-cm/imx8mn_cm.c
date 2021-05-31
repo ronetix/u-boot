@@ -241,10 +241,5 @@ int board_late_init(void)
 	board_late_mmc_env_init();
 #endif
 
-#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	env_set("board_name", "i.MX8MN-CM");
-	env_set("board_rev", "v1.0");
-#endif
-
 	return 0;
 }
