@@ -54,6 +54,7 @@ enum {
     BD71837_OUT32K		= 0x2E,
     BD71837_REGLOCK		= 0x2F,
     BD71837_MUXSW_EN		= 0x30,
+    BD71837_OTPVER		= 0xFF,
     BD71837_REG_NUM,
 };
 
