@@ -27,4 +27,6 @@
 #define CONFIG_SYS_INIT_RAM_SIZE        0x00080000
 #define PHYS_SDRAM_SIZE					0x20000000 /* 512 MB LPDDR4 */
 
+#define CONFIG_USB_TCPC
+
 #endif
