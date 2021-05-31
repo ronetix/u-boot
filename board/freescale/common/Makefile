@@ -62,6 +62,7 @@ obj-$(CONFIG_POWER_PFUZE100)	+= pfuze.o
 obj-$(CONFIG_DM_PMIC_PFUZE100)	+= pfuze.o
 obj-$(CONFIG_POWER_MC34VR500)	+= mc34vr500.o
 obj-$(CONFIG_MXC_EPDC)		+= epdc_setup.o
+obj-$(CONFIG_POWER_BD71837)	+= bd718xx.o
 obj-y				+= mmc.o
 obj-y				+= memtest.o
 ifdef CONFIG_FSL_FASTBOOT
