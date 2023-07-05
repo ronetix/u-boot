@@ -8,7 +8,7 @@
 #include "imx93.dtsi"
 
 /{
-	model = "RONETIX RNX-i.MX93-OSM SoM";
+	model = "RONETIX i.MX93-OSM board";
 	compatible = "fsl,imx93-11x11-evk", "fsl,imx93";
 
 	chosen {
@@ -32,6 +32,15 @@
 		};
 	};
 
+	reg_can2_stby: regulator-can2-stby {
+		compatible = "regulator-fixed";
+		regulator-name = "can2-stby";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&adp5585gpio 5 GPIO_ACTIVE_LOW>;
+		enable-active-low;
+	};
+
 	reg_usdhc2_vmmc: regulator-usdhc2 {
 		compatible = "regulator-fixed";
 		pinctrl-names = "default";
@@ -45,6 +54,7 @@
 
 	usdhc3_pwrseq: usdhc3_pwrseq {
 		compatible = "mmc-pwrseq-simple";
+		reset-gpios = <&pcal6524 20 GPIO_ACTIVE_LOW>;
 	};
 
 	reg_vref_1v8: regulator-adc-vref {
@@ -58,12 +68,53 @@
 		compatible = "synopsys,dw-mipi-dsi";
 		status = "okay";
 	};
+
+	rm67199_panel {
+		compatible = "raydium,rm67199";
+		reset-gpio = <&adp5585gpio 6 GPIO_ACTIVE_LOW>;
+		dsi-lanes = <4>;
+		video-mode = <2>;	/* 0: burst mode
+					 * 1: non-burst mode with sync event
+					 * 2: non-burst mode with sync pulse
+					 */
+		width-mm = <68>;
+		height-mm = <121>;
+		status = "okay";
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi_out>;
+			};
+		};
+	};
 };
 
 &dphy {
 	status = "okay";
 };
 
+&dsi {
+	status = "okay";
+
+	ports {
+		port@1 {
+			dsi_to_adv7535: endpoint {
+				remote-endpoint = <&adv7535_to_dsi>;
+			};
+		};
+
+		port@2 {
+			dsi_out: endpoint {
+				remote-endpoint = <&panel_in>;
+			};
+		};
+	};
+};
+
+&lcdif {
+	status = "okay";
+	assigned-clock-rates = <484000000>, <121000000>, <400000000>, <133333333>;
+};
 
 &lpi2c1 {
 	#address-cells = <1>;
@@ -73,6 +124,20 @@
 	pinctrl-0 = <&pinctrl_lpi2c1>;
 	pinctrl-1 = <&pinctrl_lpi2c1>;
 	status = "okay";
+
+	adv7535: hdmi@3d {
+		compatible = "adi,adv7535";
+		reg = <0x3d>;
+		adi,addr-cec = <0x3c>;
+		adi,dsi-lanes = <4>;
+		status = "okay";
+
+		port {
+			adv7535_to_dsi: endpoint {
+				remote-endpoint = <&dsi_to_adv7535>;
+			};
+		};
+	};
 };
 
 &lpi2c2 {
@@ -88,8 +153,8 @@
 		compatible = "nxp,pca9451a";
 		reg = <0x25>;
 		pinctrl-names = "default";
-		interrupt-parent = <&pcal6416>;
-		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-parent = <&pcal6524>;
+		interrupts = <12 IRQ_TYPE_LEVEL_LOW>;
 
 		regulators {
 			buck1: BUCK1 {
@@ -176,17 +241,24 @@
 		};
 	};
 
-	pcal6416: gpio@20 {
-		compatible = "nxp,pcal6416";
+	pcal6524: gpio@22 {
+		compatible = "nxp,pcal6524";
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_pcal6416>;
-		reg = <0x20>;
+		pinctrl-0 = <&pinctrl_pcal6524>;
+		reg = <0x22>;
 		gpio-controller;
 		#gpio-cells = <2>;
 		interrupt-controller;
 		#interrupt-cells = <2>;
 		interrupt-parent = <&gpio3>;
 		interrupts = <27 IRQ_TYPE_LEVEL_LOW>;
+	};
+
+	adp5585gpio: gpio@34 {
+		compatible = "adp5585";
+		reg = <0x34>;
+		gpio-controller;
+		#gpio-cells = <2>;
 	};
 };
 
@@ -198,6 +270,68 @@
 	pinctrl-0 = <&pinctrl_lpi2c3>;
 	pinctrl-1 = <&pinctrl_lpi2c3>;
 	status = "okay";
+
+	pcf2131: rtc@53 {
+		compatible = "nxp,pcf2131";
+		reg = <0x53>;
+		interrupt-parent = <&pcal6524>;
+		interrupts = <1 IRQ_TYPE_LEVEL_LOW>;
+		status = "okay";
+	};
+
+	ptn5110: tcpc@50 {
+		compatible = "nxp,ptn5110";
+		reg = <0x50>;
+		interrupt-parent = <&pcal6524>;
+		interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
+		status = "okay";
+
+		port {
+			typec1_dr_sw: endpoint {
+				remote-endpoint = <&usb1_drd_sw>;
+			};
+		};
+
+		typec1_con: connector {
+			compatible = "usb-c-connector";
+			label = "USB-C";
+			power-role = "dual";
+			data-role = "dual";
+			try-power-role = "sink";
+			source-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_USB_COMM)>;
+			sink-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_USB_COMM)
+				     PDO_VAR(5000, 20000, 3000)>;
+			op-sink-microwatt = <15000000>;
+			self-powered;
+		};
+	};
+
+	ptn5110_2: tcpc@51 {
+		compatible = "nxp,ptn5110";
+		reg = <0x51>;
+		interrupt-parent = <&pcal6524>;
+		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
+		status = "okay";
+
+		port {
+			typec2_dr_sw: endpoint {
+				remote-endpoint = <&usb2_drd_sw>;
+			};
+		};
+
+		typec2_con: connector {
+			compatible = "usb-c-connector";
+			label = "USB-C";
+			power-role = "dual";
+			data-role = "dual";
+			try-power-role = "sink";
+			source-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_USB_COMM)>;
+			sink-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_USB_COMM)
+				     PDO_VAR(5000, 20000, 3000)>;
+			op-sink-microwatt = <15000000>;
+			self-powered;
+		};
+	};
 };
 
 &lpuart1 { /* console */
@@ -224,10 +358,16 @@
 	samsung,picophy-pre-emp-curr-control = <3>;
 	samsung,picophy-dc-vol-level-adjust = <7>;
 	status = "okay";
+
+	port {
+		usb1_drd_sw: endpoint {
+			remote-endpoint = <&typec1_dr_sw>;
+		};
+	};
 };
 
 &usbotg2 {
-	dr_mode = "host";
+	dr_mode = "otg";
 	hnp-disable;
 	srp-disable;
 	adp-disable;
@@ -236,6 +376,12 @@
 	samsung,picophy-pre-emp-curr-control = <3>;
 	samsung,picophy-dc-vol-level-adjust = <7>;
 	status = "okay";
+
+	port {
+		usb2_drd_sw: endpoint {
+			remote-endpoint = <&typec2_dr_sw>;
+		};
+	};
 };
 
 &usdhc1 {
@@ -253,7 +399,7 @@
 	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-1 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-2 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
-	cd-gpios = <&gpio3 00 GPIO_ACTIVE_HIGH>;
+	cd-gpios = <&gpio3 00 GPIO_ACTIVE_LOW>;
 	vmmc-supply = <&reg_usdhc2_vmmc>;
 	bus-width = <4>;
 	status = "okay";
@@ -311,10 +457,27 @@
 	};
 };
 
+&flexcan2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_flexcan2>;
+	xceiver-supply = <&reg_can2_stby>;
+	status = "okay";
+};
+
 &flexspi {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_flexspi>;
 	status = "okay";
+
+	flash0: mt25qu512a@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <80000000>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+	};
 };
 
 &iomuxc {
@@ -398,7 +561,7 @@
 		>;
 	};
 
-	pinctrl_pcal6416: pcal6416grp {
+	pinctrl_pcal6524: pcal6524grp {
 		fsl,pins = <
 			MX93_PAD_CCM_CLKO2__GPIO3_IO27			0x31e
 		>;
