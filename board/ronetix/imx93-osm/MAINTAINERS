@@ -1,0 +1,6 @@
+RNX-i.MX93-OSM BOARD
+M:	Ilko Iliev <iliev@ronetix.at>
+S:	Maintained
+F:	board/ronetix/imx93-osm/
+F:	include/configs/imx93_osm.h
+F:	configs/imx93_osm_defconfig
