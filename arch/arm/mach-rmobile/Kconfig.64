@@ -222,6 +222,10 @@ config TARGET_SMARC_RZG2UL
 	help
           Support for Renesas RZ/G2UL Dev Platform
 
+config TARGET_RNX_RZG2UL_OSM
+	bool "RZ/G2UL Ronetix OSM board"
+	help
+          Support for Ronetix RZ/G2UL OSM SoM
 endchoice
 
 config SYS_SOC
@@ -241,6 +245,7 @@ source "board/renesas/rzg2l-dev/Kconfig"
 source "board/renesas/rzv2l-dev/Kconfig"
 source "board/renesas/rzg2lc-dev/Kconfig"
 source "board/renesas/rzg2ul-dev/Kconfig"
+source "board/ronetix/rnx-rzg2ul-osm/Kconfig"
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
 	default 0x80000 if TARGET_HIHOPE_RZG2

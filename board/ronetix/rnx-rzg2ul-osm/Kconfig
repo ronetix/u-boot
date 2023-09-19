@@ -1,0 +1,15 @@
+if TARGET_RNX_RZG2UL_OSM || TARGET_RZG2UL_TYPE1_DEV || TARGET_RZG2UL_TYPE1_DDR3L_DEV || TARGET_RZG2UL_TYPE2_DEV
+
+config SYS_SOC
+	default "rmobile"
+
+config SYS_BOARD
+	default "rnx-rzg2ul-osm"
+
+config SYS_VENDOR
+	default "ronetix"
+
+config SYS_CONFIG_NAME
+	default "rnx-rzg2ul-osm"
+
+endif
