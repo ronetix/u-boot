@@ -41,7 +41,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CPG_RESET_BASE				(CPG_BASE + 0x800)
 #define CPG_RESET_ETH				(CPG_RESET_BASE + 0x7C)
 #define CPG_RESET_I2C               (CPG_RESET_BASE + 0x80)
-#define CPG_RST_USB				(CPG_BASE + 0x878)
+#define CPG_RST_USB					(CPG_BASE + 0x878)
 #define CPG_CLKON_USB				(CPG_BASE + 0x578)
 
 /* PFC */
@@ -49,10 +49,20 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	PFC_PM10			(PFC_BASE + 0x0120)
 #define	PFC_PMC10			(PFC_BASE + 0x0210)
 
+#define	PFC_P12				(PFC_BASE + 0x0012)
+#define	PFC_PM12			(PFC_BASE + 0x0124)
+#define	PFC_PMC12			(PFC_BASE + 0x0212)
+
+#define	PFC_P14				(PFC_BASE + 0x0014)
+#define	PFC_PM14			(PFC_BASE + 0x0128)
+#define	PFC_PMC14			(PFC_BASE + 0x0214)
+
 #define	PFC_P16				(PFC_BASE + 0x0016)
 #define	PFC_P22				(PFC_BASE + 0x0022)
 #define	PFC_PM16			(PFC_BASE + 0x012C)
 #define	PFC_PM22			(PFC_BASE + 0x0144)
+#define	PFC_PMC14			(PFC_BASE + 0x0214)
+#define	PFC_PMC15			(PFC_BASE + 0x0215)
 #define	PFC_PMC16			(PFC_BASE + 0x0216)
 #define	PFC_PMC22			(PFC_BASE + 0x0222)
 
@@ -79,29 +89,34 @@ DECLARE_GLOBAL_DATA_PTR;
 /* WDT */
 #define WDT_INDEX		0
 
-void s_init(void)
+static void gpio_init(void)
 {
 	/* SD1 power control : P0_3 = 1 P6_1 = 1	*/
 	*(volatile u8 *)(PFC_PMC10) &= 0xF7;	/* Port func mode 0b00	*/
-	*(volatile u8 *)(PFC_PMC16) &= 0xFD;	/* Port func mode 0b00	*/
 	*(volatile u16 *)(PFC_PM10) = (*(volatile u16 *)(PFC_PM10) & 0xFF3F) | 0x0080; /* Port output mode 0b10 */
-	*(volatile u16 *)(PFC_PM16) = (*(volatile u16 *)(PFC_PM16) & 0xFFF3) | 0x0008; /* Port output mode 0b10 */
 	*(volatile u8 *)(PFC_P10) = (*(volatile u8 *)(PFC_P10) & 0xF7) | 0x08; /* P0_3  output 1	*/
+
+	/* P6_1 */
+	*(volatile u8 *)(PFC_PMC16) &= 0xFD;	/* Port func mode 0b00	*/
+	*(volatile u16 *)(PFC_PM16) = (*(volatile u16 *)(PFC_PM16) & 0xFFF3) | 0x0008; /* Port output mode 0b10 */
 	*(volatile u8 *)(PFC_P16) = (*(volatile u8 *)(PFC_P16) & 0xFD) | 0x02; /* P6_1  output 1	*/
 
-	/********************************************************************/
-	/* TODO: Change the voltage setting according to the SW1-3 setting	*/
-	/********************************************************************/
-	/* can go in board_eht_init() once enabled */
-	*(volatile u32 *)(ETH_CH0) = (*(volatile u32 *)(ETH_CH0) & 0xFFFFFFFC) | ETH_PVDD_3300;
-	*(volatile u32 *)(ETH_CH1) = (*(volatile u32 *)(ETH_CH1) & 0xFFFFFFFC) | ETH_PVDD_1800;
+	/* P2_1 */
+	*(volatile u8 *)(PFC_PMC12) &= 0xFD;	/* Port func mode 0b00	*/
+	*(volatile u16 *)(PFC_PM12) = (*(volatile u16 *)(PFC_PM12) & 0xFF3F) | 0x0008; /* Port output mode 0b10 */
+	*(volatile u8 *)(PFC_P12) = (*(volatile u8 *)(PFC_P12) & 0xFD) | 0x02; /* P4_3  output 1	*/
+
+	*(volatile u8 *)(ETH_CH0) = ETH_PVDD_1800;
+
 	/* Enable RGMII for both ETH{0,1} */
-	*(volatile u32 *)(ETH_MII_RGMII) = (*(volatile u32 *)(ETH_MII_RGMII) & 0xFFFFFFFC);
-	/* ETH CLK */
-	*(volatile u32 *)(CPG_RESET_ETH) = 0x30002;
+	*(volatile u8 *)(ETH_MII_RGMII) = 0;
+
+	/* ETH0 reset released, ETH1 is in RESET state */
+	*(volatile u32 *)(CPG_RESET_ETH) = 0x10001;
 
 	/* I2C CLK */
 	*(volatile u32 *)(CPG_RESET_I2C) = 0xF000F;
+
 	/* I2C pin non GPIO enable */
 	*(volatile u32 *)(I2C_CH1) = 0x01010101;
 
@@ -158,42 +173,16 @@ static void board_usb_init(void)
 
 int board_early_init_f(void)
 {
-
 	return 0;
 }
 
 int board_init(void)
 {
-	struct udevice *dev;
-	struct udevice *bus;
-	const u8 pmic_bus = 0;
-	const u8 pmic_addr = 0x58;
-	u8 data;
-	int ret;
-
-	ret = uclass_get_device_by_seq(UCLASS_I2C, pmic_bus, &bus);
-	if (ret)
-		hang();
-
-	ret = i2c_get_chip(bus, pmic_addr, 1, &dev);
-	if (ret)
-		hang();
-
-	ret = dm_i2c_read(dev, 0x2, &data, 1);
-	if (ret)
-		hang();
-
-	if ((data & 0x08) == 0) {
-		printf("SW_ET0_EN: ON\n");
-		*(volatile u32 *)(ETH_CH0) = (*(volatile u32 *)(ETH_CH0) & 0xFFFFFFFC) | ETH_PVDD_1800;
-	} else {
-		printf("SW_ET0_EN: OFF\n");
-		*(volatile u32 *)(ETH_CH0) = (*(volatile u32 *)(ETH_CH0) & 0xFFFFFFFC) | ETH_PVDD_3300;
-	}
-
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
+
 	board_usb_init();
+	gpio_init();
 
 	return 0;
 }
