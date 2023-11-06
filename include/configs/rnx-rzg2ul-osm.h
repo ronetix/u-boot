@@ -58,13 +58,28 @@
 #define CONFIG_BOARD_SIZE_LIMIT		1048576
 
 /* ENV setting */
-#define CONFIG_EXTRA_ENV_SETTINGS	\
-	"bootm_size=0x10000000\0"
+#define BOOT_MODE	"emmc"
 
-#define CONFIG_BOOTCOMMAND	\
+#define BOOT_NET	\
+	"bootnet=" \
 	"tftp 0x48080000 Image; " \
 	"tftp 0x48000000 Image-"CONFIG_DEFAULT_FDT_FILE"; " \
-	"booti 0x48080000 - 0x48000000"
+	"booti 0x48080000 - 0x48000000\0"
+
+#define BOOT_MMC \
+	"bootmmc="\
+	"mmc dev 1;" \
+	"fatload mmc 1:1 0x48080000 Image-rnx-rzg2ul-osm.bin;" \
+	"fatload mmc 1:1 0x48000000 rnx-rzg2ul-osm.dtb;" \
+	"booti 0x48080000 - 0x48000000\0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"bootm_size=0x10000000\0" \
+	BOOT_NET \
+	BOOT_MMC
+
+#define CONFIG_BOOTCOMMAND	"run bootmmc"
+
 
 /* For board */
 /* Ethernet RAVB */
