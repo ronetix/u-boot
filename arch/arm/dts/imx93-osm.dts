@@ -118,16 +118,6 @@
 	status = "okay";
 };
 
-&lpi2c3 {
-	#address-cells = <1>;
-	#size-cells = <0>;
-	clock-frequency = <400000>;
-	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&pinctrl_lpi2c3>;
-	pinctrl-1 = <&pinctrl_lpi2c3>;
-	status = "okay";
-};
-
 &lpuart1 { /* console */
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1>;
@@ -237,13 +227,6 @@
 			MX93_PAD_SD3_DATA1__FLEXSPI1_A_DATA01   0x42
 			MX93_PAD_SD3_DATA2__FLEXSPI1_A_DATA02   0x42
 			MX93_PAD_SD3_DATA3__FLEXSPI1_A_DATA03   0x42
-		>;
-	};
-
-	pinctrl_lpi2c3: lpi2c3grp {
-		fsl,pins = <
-			MX93_PAD_GPIO_IO28__LPI2C3_SDA			0x40000b9e
-			MX93_PAD_GPIO_IO29__LPI2C3_SCL			0x40000b9e
 		>;
 	};
 
