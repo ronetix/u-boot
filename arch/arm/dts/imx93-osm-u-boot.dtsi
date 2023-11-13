@@ -125,10 +125,6 @@
 	u-boot,dm-spl;
 };
 
-&pinctrl_lpi2c3 {
-	u-boot,dm-spl;
-};
-
 &s4muap {
 	u-boot,dm-spl;
 	status = "okay";
