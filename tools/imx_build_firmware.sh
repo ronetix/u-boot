@@ -33,7 +33,7 @@ clean=$2
 
 # toolchain can be found here:
 # http://download.ronetix.at/toolchains/crosstool-ng
-export CROSS_COMPILE=/opt/cross/aarch64-ronetix-elf/bin/aarch64-ronetix-elf-
+export CROSS_COMPILE?=/opt/cross/aarch64-ronetix-elf/bin/aarch64-ronetix-elf-
 export ARCH=arm64
 
 ATF_DIR="imx-atf"
