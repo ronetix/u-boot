@@ -1,0 +1,22 @@
+uuu_version 1.2.39
+
+
+# RNX-iMX93-OSM
+# BOOT mode: Cortex-A55 Serial Downloader
+# 1-2   3-4   5-6   7-8
+# CLOSE OPEN  OPEN  OPEN
+#
+# BOOT mode: Cortex-A55, eMMC
+# 1-2   3-4    5-6   7-8
+# OPEN  CLOSE  OPEN  OPEN
+
+SDPS: boot -f flash.bin
+
+FB: ucmd setenv fastboot_dev mmc
+FB: ucmd setenv mmcdev ${emmc_dev}
+FB: ucmd mmc dev ${emmc_dev}
+
+FB: flash bootloader flash.bin
+FB: ucmd if env exists emmc_ack; then ; else setenv emmc_ack 0; fi;
+FB: ucmd mmc partconf ${emmc_dev} ${emmc_ack} 1 0
+FB: done
