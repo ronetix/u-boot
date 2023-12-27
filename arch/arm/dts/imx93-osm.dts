@@ -76,17 +76,9 @@
 		ethphy1: ethernet-phy@1 {
 			compatible = "ethernet-phy-ieee802.3-c22";
 			reg = <1>;
-			eee-broken-1000t;
-		};
-
-		ethphy2: ethernet-phy@2 {
-			compatible = "ethernet-phy-ieee802.3-c22";
-			reg = <2>;
-			eee-broken-1000t;
 		};
 	};
 };
-
 
 /* ETH2, ethernet@42890000 */
 &fec {
@@ -96,6 +88,18 @@
 	phy-handle = <&ethphy2>;
 	fsl,magic-packet;
 	status = "okay";
+
+	mdio {
+		compatible = "snps,dwmac-mdio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clock-frequency = <5000000>;
+
+		ethphy2: ethernet-phy@2 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <2>;
+		};
+	};
 };
 
 &lpi2c1 {
