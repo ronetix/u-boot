@@ -1,0 +1,15 @@
+if TARGET_IMX8MP_CM
+
+config SYS_BOARD
+	default "imx8mp-cm"
+
+config SYS_VENDOR
+	default "ronetix"
+
+config SYS_CONFIG_NAME
+	default "imx8mp_cm"
+
+config IMX_CONFIG
+	default "board/ronetix/imx8mp-cm/imximage-8mp-lpddr4.cfg"
+
+endif

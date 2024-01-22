@@ -287,6 +287,16 @@ config TARGET_IMX8MN_VENICE
 	select GATEWORKS_SC
 	select MISC
 
+config TARGET_IMX8MP_CM
+	bool "Ronetix iMX8MP-CM SoM"
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select FSL_BLOB
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
+
 config TARGET_IMX8MP_DH_DHCOM_PDK2
 	bool "DH electronics DHCOM Premium Developer Kit (2) i.MX8M Plus"
 	select BINMAN
@@ -476,6 +486,7 @@ source "board/msc/sm2s_imx8mp/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/purism/librem5/Kconfig"
+source "board/ronetix/imx8mp-cm/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"
 source "board/variscite/imx8mn_var_som/Kconfig"
