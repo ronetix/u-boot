@@ -33,20 +33,24 @@ clean=$2
 
 # toolchain can be found here:
 # http://download.ronetix.at/toolchains/crosstool-ng
-export CROSS_COMPILE?=/opt/cross/aarch64-ronetix-elf/bin/aarch64-ronetix-elf-
-export ARCH=arm64
+#export CROSS_COMPILE?=/opt/cross/aarch64-ronetix-elf/bin/aarch64-ronetix-elf-
+#export ARCH=arm64
 
 ATF_DIR="imx-atf"
 ATF_URL="https://github.com/nxp-imx/imx-atf"
-MKIMAGE_URL="https://github.com/nxp-imx/imx-mkimage"
+ATF_SOC=$soc
+
 IMX_FIRMWARE_URL="https://www.nxp.com/lgfiles/NMG/MAD/YOCTO"
-OUTPUT_DIR="."
 FLAG_HDMI="n"
+
 FIRMWARE=""
-MKIMAGE_BRANCH=""
 FIRMWARE_SENTINEL=""
+
+MKIMAGE_URL="https://github.com/nxp-imx/imx-mkimage"
+MKIMAGE_BRANCH=""
 MKIMAGE_DIR=""
 MKIMAGE_SOC_DIR=""
+MKIMAGE_OUT_DIR="."
 
 #-----------------------------------------------------------------------
 #                       run()
@@ -111,8 +115,23 @@ case "$soc" in
 	MKIMAGE_BRANCH="lf-6.1.36_2.1.0"
 	MKIMAGE_DIR="imx-mkimage"
 	MKIMAGE_SOC="iMX9"
-	OUTPUT_DIR=$MKIMAGE_DIR/$MKIMAGE_SOC
+    MKIMAGE_TARGET="flash_singleboot"
+	MKIMAGE_OUT_DIR=$MKIMAGE_DIR/iMX9
 	;;
+
+"imx8mp")
+    ATF_BRANCH="lf_v2.8"
+    ATF_SOC="imx8mp"
+    FIRMWARE_IMX="firmware-imx-8.21"
+    MKIMAGE_BRANCH="lf-6.1.36_2.1.0"
+    MKIMAGE_DIR="imx-mkimage"
+    MKIMAGE_SOC="iMX8MP"
+    MKIMAGE_TARGET="flash_evk"
+	FLAG_HDMI="y"
+	MKIMAGE_OUT_DIR=$MKIMAGE_DIR/iMX8M
+	SEEK=32
+    ;;
+
 *)
 	usage
 	return
@@ -137,33 +156,41 @@ if [ "$MKIMAGE_BRANCH" != "" ]; then
 	if [ ! -d "$MKIMAGE_DIR" ]; then
 		run "git clone $MKIMAGE_URL $MKIMAGE_DIR -b $MKIMAGE_BRANCH" || return
 	fi
+
+	if [ "$soc" == "imx8mp" ]; then
+		run cp ./arch/arm/dts/imx8mp-cm.dtb $MKIMAGE_OUT_DIR/imx8mp-evk.dtb
+		run cp ./u-boot-nodtb.bin $MKIMAGE_OUT_DIR
+		run cp tools/mkimage $MKIMAGE_OUT_DIR/mkimage_uboot
+	fi
+
 	run cd $MKIMAGE_DIR
 	run make SOC=iMX8M mkimage_imx8 || return
 	run cd ..
 fi
 
+# Download and build ATF - ARM Trusted firmware
 if [ "$FIRMWARE_IMX" != "" ]; then
 	if [ ! -d "$ATF_DIR" ]; then
 		run "git clone $ATF_URL $ATF_DIR -b $ATF_BRANCH" || return
 	fi
-	run make -C $ATF_DIR PLAT=$soc bl31 || return
-	run cp $ATF_DIR/build/$soc/release/bl31.bin . || return
+	run make -C $ATF_DIR PLAT=$ATF_SOC bl31 || return
+	run cp $ATF_DIR/build/${ATF_SOC}/release/bl31.bin . || return
 fi
 
 if [ "$FIRMWARE_IMX" != "" ]; then
 	echo "Get the NXP DDR and HDMI firmware"
 	if [ ! -f "$FIRMWARE_IMX.bin" ]; then
 		run wget $IMX_FIRMWARE_URL/$FIRMWARE_IMX.bin || return
-	fi	
-	if [ ! -d "$FIRMWARE_IMX" ]; then	
+	fi
+	if [ ! -d "$FIRMWARE_IMX" ]; then
 		run chmod +x $FIRMWARE_IMX.bin || return
 		run ./$FIRMWARE_IMX.bin || return
 	fi
 
-	run cp $FIRMWARE_IMX/firmware/ddr/synopsys/lpddr4*.bin $OUTPUT_DIR || return
+	run cp $FIRMWARE_IMX/firmware/ddr/synopsys/lpddr4*.bin $MKIMAGE_OUT_DIR || return
 
-	if [ "FLAG_HDMI" == "y" ]; then
-		run cp $FIRMWARE_IMX/firmware/hdmi/cadence/signed_hdmi_$soc.bin . || return
+	if [ "$FLAG_HDMI" == "y" ]; then
+		run cp $FIRMWARE_IMX/firmware/hdmi/cadence/signed_hdmi_imx8m.bin $MKIMAGE_OUT_DIR || return
 	fi
 fi
 
@@ -172,22 +199,21 @@ if [ "$FIRMWARE_SENTINEL" != "" ]; then
 	if [ ! -f "$FIRMWARE_SENTINEL.bin" ]; then
 		run wget $IMX_FIRMWARE_URL/$FIRMWARE_SENTINEL.bin || return
 	fi
-	if [ ! -d "$FIRMWARE_SENTINEL" ]; then	
+	if [ ! -d "$FIRMWARE_SENTINEL" ]; then
 		run chmod +x $FIRMWARE_SENTINEL.bin || return
 		run ./$FIRMWARE_SENTINEL.bin || return
 	fi
-	run cp $FIRMWARE_SENTINEL/mx93*.img $OUTPUT_DIR || return
+	run cp $FIRMWARE_SENTINEL/mx93*.img $MKIMAGE_OUT_DIR || return
 fi
 
 if [ "$MKIMAGE_BRANCH" != "" ]; then
-	run cp $ATF_DIR/build/imx93/release/bl31.bin $OUTPUT_DIR || return
-
-	run cp u-boot.bin $OUTPUT_DIR || return
-	run cp spl/u-boot-spl.bin $OUTPUT_DIR || return
+	run cp $ATF_DIR/build/$ATF_SOC/release/bl31.bin $MKIMAGE_OUT_DIR || return
+	run cp u-boot.bin $MKIMAGE_OUT_DIR || return
+	run cp spl/u-boot-spl.bin $MKIMAGE_OUT_DIR || return
 	run cd $MKIMAGE_DIR
-	run make SOC=$MKIMAGE_SOC flash_singleboot || return
+	run make SOC=$MKIMAGE_SOC $MKIMAGE_TARGET
 	run cd ..
-	echo "The result is: $OUTPUT_DIR/flash.bin"
+	echo "The result is: $MKIMAGE_OUT_DIR/flash.bin"
 fi
 
 echo "done."
