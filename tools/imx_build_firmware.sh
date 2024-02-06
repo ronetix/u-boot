@@ -17,7 +17,7 @@ this=${BASH_SOURCE[0]}
 function usage
 {
 	echo "Usage:"
-	echo "  source $this imx8mq | imx8mm | imx8mn | imx93"
+	echo "  source $this imx8mq | imx8mm | imx8mn | imx8mp | imx93"
 	echo "For example:"
 	echo "  source $this imx8mq"
 }
