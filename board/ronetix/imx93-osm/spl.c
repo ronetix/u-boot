@@ -122,9 +122,6 @@ int power_init_board(void)
 		pmic_reg_write(dev, PCA9450_BUCK3OUT_DVS0, buck_val + 0x4);
 	}
 
-	/* Set VDDQ to 1.1V from buck2 */
-	pmic_reg_write(dev, PCA9450_BUCK2OUT_DVS0, 0x28);
-
 	/* set standby voltage to 0.65v */
 	if (val & PCA9450_REG_PWRCTRL_TOFF_DEB)
 		pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS1, 0x0);
