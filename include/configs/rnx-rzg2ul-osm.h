@@ -57,21 +57,23 @@
 /* The HF/QSPI layout permits up to 1 MiB large bootloader blob */
 #define CONFIG_BOARD_SIZE_LIMIT		1048576
 
-#define _CONFIG_eMMCROOT		"/dev/mmcblk0p2"
-#define _CONFIG_SDROOT			"/dev/mmcblk1p2"
+#define _CONFIG_eMMCROOT		"mmcblk0p2"
+#define _CONFIG_SDROOT			"mmcblk1p2"
+#define _CONFIG_BOOTARG			"rw rootwait earlycon root=/dev/"
 
 /* ENV setting */
 #define BOOT_MODE	"emmc"
 
 #define BOOT_NET	\
 	"bootnet=" \
+	"setenv bootargs " _CONFIG_BOOTARG""_CONFIG_SDROOT ";"\
 	"dhcp 0x48080000 Image; " \
 	"tftp 0x48000000 "CONFIG_DEFAULT_FDT_FILE"; " \
 	"booti 0x48080000 - 0x48000000\0"
 
 #define BOOT_eMMC \
 	"bootemmc="\
-	"setenv bootargs rw rootwait earlycon root=" _CONFIG_eMMCROOT ";"\
+	"setenv bootargs " _CONFIG_BOOTARG""_CONFIG_eMMCROOT ";"\
 	"mmc dev 0;" \
 	"ext4load mmc 0:1 0x48080000 Image-rnx-rzg2ul-osm.bin;" \
 	"ext4load mmc 0:1 0x48000000 "CONFIG_DEFAULT_FDT_FILE";" \
@@ -80,7 +82,7 @@
 #define BOOT_SD \
 	"" \
 	"bootsd="\
-	"setenv bootargs rw rootwait earlycon root=" _CONFIG_SDROOT ";"\
+	"setenv bootargs " _CONFIG_BOOTARG""_CONFIG_SDROOT ";"\
 	"mmc dev 1;" \
 	"fatload mmc 1:1 0x48080000 Image-rnx-rzg2ul-osm.bin;" \
 	"fatload mmc 1:1 0x48000000 "CONFIG_DEFAULT_FDT_FILE ";" \
