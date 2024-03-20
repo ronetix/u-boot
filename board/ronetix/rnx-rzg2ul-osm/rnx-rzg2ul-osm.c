@@ -96,7 +96,7 @@ static void gpio_init(void)
 	*(volatile u16 *)(PFC_PM10) = (*(volatile u16 *)(PFC_PM10) & 0xFF3F) | 0x0080; /* Port output mode 0b10 */
 	*(volatile u8 *)(PFC_P10) = (*(volatile u8 *)(PFC_P10) & 0xF7) | 0x08; /* P0_3  output 1	*/
 
-	/* P6_1 */
+	/* P6_1 ; SD1 power select 3.3V or 1.8V  */
 	*(volatile u8 *)(PFC_PMC16) &= 0xFD;	/* Port func mode 0b00	*/
 	*(volatile u16 *)(PFC_PM16) = (*(volatile u16 *)(PFC_PM16) & 0xFFF3) | 0x0008; /* Port output mode 0b10 */
 	*(volatile u8 *)(PFC_P16) = (*(volatile u8 *)(PFC_P16) & 0xFD) | 0x02; /* P6_1  output 1	*/
