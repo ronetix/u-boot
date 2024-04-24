@@ -46,7 +46,7 @@ case "$soc" in
 	;;
 
 "imx8mm")
-	SRC_URI="https://source.codeaurora.org/external/imx/imx-atf"
+	SRC_URI="https://github.com/ronetix/imx-atf"
 	BRANCH_ATF="imx_4.19.35_1.0.0"
 	FIRMWARE="firmware-imx-8.0"
 	ATF_LOAD_ADDR=0x920000
@@ -54,7 +54,7 @@ case "$soc" in
 	;;
 
 "imx8mn")
-	SRC_URI="https://source.codeaurora.org/external/imx/imx-atf"
+	SRC_URI="https://github.com/ronetix/imx-atf"
 	BRANCH_ATF="imx_4.19.35_1.0.0"
 	FIRMWARE="firmware-imx-8.5"
 	ATF_LOAD_ADDR=0x960000
