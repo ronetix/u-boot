@@ -93,17 +93,37 @@ case "$soc" in
 	;;
 
 "imx8mm")
-	ATF_BRANCH="imx_4.19.35_1.0.0"
-	FIRMWARE_IMX="firmware-imx-8.0"
-	ATF_LOAD_ADDR=0x920000
-	run export ATF_LOAD_ADDR=$ATF_LOAD_ADDR
-	SEEK=33
-	;;
+    ATF_BRANCH="lf_v2.8"
+    ATF_SOC="imx8mm"
+    FIRMWARE_IMX="firmware-imx-8.21"
+    MKIMAGE_BRANCH="lf-6.1.36_2.1.0"
+    MKIMAGE_DIR="imx-mkimage"
+    MKIMAGE_SOC="iMX8MM"
+    MKIMAGE_TARGET="flash_evk"
+    MKIMAGE_OUT_DIR=$MKIMAGE_DIR/iMX8M
+	DTB_FILE="imx8mm-cm.dtb"
+	ATF_LOAD_ADDR="0x920000"
+    SEEK=33
+    ;;
 
 "imx8mn")
+    ATF_BRANCH="lf_v2.8"
+    ATF_SOC="imx8mn"
+    FIRMWARE_IMX="firmware-imx-8.21"
+    MKIMAGE_BRANCH="lf-6.1.36_2.1.0"
+    MKIMAGE_DIR="imx-mkimage"
+    MKIMAGE_SOC="iMX8MN"
+    MKIMAGE_TARGET="flash_evk"
+    MKIMAGE_OUT_DIR=$MKIMAGE_DIR/iMX8M
+	DTB_FILE="imx8mm-compact-cm.dtb"
+	ATF_LOAD_ADDR="0x960000"
+    SEEK=32
+    ;;
+
+"imx8mn_old")
 	ATF_BRANCH="imx_4.19.35_1.0.0"
 	FIRMWARE_IMX="firmware-imx-8.5"
-	ATF_LOAD_ADDR=0x960000
+	ATF_LOAD_ADDR="0x960000"
 	run export ATF_LOAD_ADDR=$ATF_LOAD_ADDR
 	SEEK=32
 	;;
@@ -129,6 +149,7 @@ case "$soc" in
     MKIMAGE_TARGET="flash_evk"
 	FLAG_HDMI="y"
 	MKIMAGE_OUT_DIR=$MKIMAGE_DIR/iMX8M
+	DTB_FILE="imx8mp-cm.dtb"
 	SEEK=32
     ;;
 
@@ -157,8 +178,8 @@ if [ "$MKIMAGE_BRANCH" != "" ]; then
 		run "git clone $MKIMAGE_URL $MKIMAGE_DIR -b $MKIMAGE_BRANCH" || return
 	fi
 
-	if [ "$soc" == "imx8mp" ]; then
-		run cp ./arch/arm/dts/imx8mp-cm.dtb $MKIMAGE_OUT_DIR/imx8mp-evk.dtb
+	if [ "$DTB_FILE" != "" ]; then
+		run cp ./arch/arm/dts/$DTB_FILE $MKIMAGE_OUT_DIR/${soc}-evk.dtb
 		run cp ./u-boot-nodtb.bin $MKIMAGE_OUT_DIR
 		run cp tools/mkimage $MKIMAGE_OUT_DIR/mkimage_uboot
 	fi
