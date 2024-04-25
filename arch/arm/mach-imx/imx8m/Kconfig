@@ -120,6 +120,26 @@ config TARGET_IMX8MM_DDR3L_VAL
 	select SUPPORT_SPL
 	select IMX8M_DDR3L
 
+config TARGET_IMX8MM_CM
+	bool "Ronetix iMX8MM-CM SoM"
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select FSL_BLOB
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
+
+config TARGET_IMX8MM_COMPACT_CM
+	bool "Ronetix iMX8MM-COMPACT-CM SoM"
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select FSL_BLOB
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
+
 config TARGET_IMX8MM_EVK
 	bool "imx8mm LPDDR4 EVK board"
 	select IMX8MM
@@ -486,6 +506,7 @@ source "board/msc/sm2s_imx8mp/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/purism/librem5/Kconfig"
+source "board/ronetix/imx8mm-cm/Kconfig"
 source "board/ronetix/imx8mp-cm/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"

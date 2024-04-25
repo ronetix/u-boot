@@ -1030,6 +1030,8 @@ dtb-$(CONFIG_ARCH_IMX8ULP) += \
 	imx8ulp-watch.dtb
 
 dtb-$(CONFIG_ARCH_IMX8M) += \
+	imx8mm-compact-cm.dtb \
+    imx8mm-cm.dtb \
 	imx8mm-data-modul-edm-sbc.dtb \
 	imx8mm-ddr4-evk.dtb \
 	imx8mm-ddr4-ab2.dtb \
