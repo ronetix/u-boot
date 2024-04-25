@@ -62,6 +62,7 @@ obj-$(CONFIG_POWER_MC34VR500)	+= mc34vr500.o
 ifneq (,$(filter $(SOC), mx6 mx7 mx7ulp imx8 imx8m imx8ulp imx9))
 obj-y				+= mmc.o
 endif
+obj-y				+= memtest.o
 obj-$(CONFIG_MXC_EPDC)		+= epdc_setup.o
 ifdef CONFIG_FSL_FASTBOOT
 obj-${CONFIG_ANDROID_RECOVERY} += recovery_keypad.o
