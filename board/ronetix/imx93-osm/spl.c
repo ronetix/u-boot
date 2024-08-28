@@ -144,6 +144,9 @@ void board_init_f(ulong dummy)
 
 	timer_init();
 
+	/* mask CSU reset because of a CPU bug */
+	writel(0xFFF, SRC_GLOBAL_RBASE + 0x18);
+
 	arch_cpu_init();
 
 	board_early_init_f();
