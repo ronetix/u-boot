@@ -154,7 +154,6 @@ static void pm9g45_nand_hw_init(void)
 static void pm9g45_macb_hw_init(void)
 {
 	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
-	at91_pio_t	*pio	= (at91_pio_t *) AT91_PIO_BASE;
 	at91_rstc_t	*rstc	= (at91_rstc_t *) AT91_RSTC_BASE;
 	unsigned long	erstl;
 
@@ -174,6 +173,8 @@ static void pm9g45_macb_hw_init(void)
  * is defined an reset will accrue.
  */
 #ifdef CONFIG_RESET_PHY_R
+	at91_pio_t	*pio	= (at91_pio_t *) AT91_PIO_BASE;
+
 	/*
 	 * Disable pull-up on:
 	 *	RXDV (PA15) => PHY normal mode (not Test mode)
