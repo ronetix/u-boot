@@ -31,6 +31,7 @@ typedef struct
 
 extern void ds2401_init(DS2401_FUNCS *funcs);
 extern int ds2401_get_number( unsigned char id[6] );
+extern int do_ds2401(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #endif /* __DS2401_H_ */
 
