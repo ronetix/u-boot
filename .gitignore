@@ -6,6 +6,7 @@
 # Normal rules
 #
 
+.*
 *.rej
 *.orig
 *.a
@@ -15,6 +16,8 @@
 *.swp
 *.patch
 *.bin
+*.dtb
+
 
 # Build tree
 /build-*
@@ -43,6 +46,9 @@
 /u-boot.dtb
 /u-boot.sb
 /u-boot.geany
+/u-boot.cfg
+/u-boot.sym
+
 
 #
 # Generated files
