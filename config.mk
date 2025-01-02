@@ -113,6 +113,25 @@ OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
 RANLIB	= $(CROSS_COMPILE)RANLIB
 
+#-------------------------------------------------------------------------------
+#						cc-version()
+#						------------
+#	Parameter:
+#		$1 - the CC
+#
+#	Return:
+#		Returns a numerical version of the $(CC) compiler version.
+#		The format is <major><minor> where both are two digits. So for example
+#		gcc 3.41 would return 0341.
+#
+#	Usage:
+#		gcc-ver := $(call cc-version)
+#-------------------------------------------------------------------------------
+define cc-version
+	$(shell ./tools/gcc-version.sh $(CC))
+endef
+
+
 #########################################################################
 
 # Load generated board configuration
