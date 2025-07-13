@@ -45,6 +45,7 @@ FLAG_HDMI="n"
 
 FIRMWARE=""
 FIRMWARE_SENTINEL=""
+CPU_REV?="A1"
 
 MKIMAGE_URL="https://github.com/nxp-imx/imx-mkimage"
 MKIMAGE_BRANCH=""
@@ -232,7 +233,7 @@ if [ "$MKIMAGE_BRANCH" != "" ]; then
 	run cp u-boot.bin $MKIMAGE_OUT_DIR || return
 	run cp spl/u-boot-spl.bin $MKIMAGE_OUT_DIR || return
 	run cd $MKIMAGE_DIR
-	run make SOC=$MKIMAGE_SOC $MKIMAGE_TARGET
+	run make REV=$CPU_REV SOC=$MKIMAGE_SOC $MKIMAGE_TARGET
 	run cd ..
 	echo "The result is: $MKIMAGE_OUT_DIR/flash.bin"
 fi
