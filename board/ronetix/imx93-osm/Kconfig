@@ -10,3 +10,20 @@ config SYS_CONFIG_NAME
 	default "imx93_osm"
 
 endif
+
+choice
+	prompt "Select LPDDR4 size"
+
+config IMX93_OSM_LPDDR4X_1GB
+	bool "Using LPDDR4X 1GB"
+	select IMX9_LPDDR4X
+	help
+	  Use LPDDR4 timing file for 1GB
+
+config IMX93_OSM_LPDDR4X_2GB
+	bool "Using LPDDR4X 2GB"
+	select IMX9_LPDDR4X
+	help
+	  Use LPDDR4 timing file for 2GB
+	  
+endchoice

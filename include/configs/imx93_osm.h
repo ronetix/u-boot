@@ -155,7 +155,12 @@
 
 #define CFG_SYS_SDRAM_BASE           0x80000000
 #define PHYS_SDRAM                      0x80000000
+
+#if defined (CONFIG_IMX93_OSM_LPDDR4X_2GB)
+#define PHYS_SDRAM_SIZE			0x80000000 /* 2GB DDR */
+#else
 #define PHYS_SDRAM_SIZE			0x40000000 /* 1GB DDR */
+#endif
 
 #define CFG_SYS_FSL_USDHC_NUM	2
 
