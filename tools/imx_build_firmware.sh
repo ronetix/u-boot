@@ -45,7 +45,10 @@ FLAG_HDMI="n"
 
 FIRMWARE=""
 FIRMWARE_SENTINEL=""
-CPU_REV?="A1"
+
+if [ "$CPU_REV" == "" ]; then
+	CPU_REV="A1"
+fi
 
 MKIMAGE_URL="https://github.com/nxp-imx/imx-mkimage"
 MKIMAGE_BRANCH=""
@@ -131,7 +134,7 @@ case "$soc" in
 
 "imx93")
 	ATF_BRANCH="lf_v2.8"
-	FIRMWARE_IMX="firmware-imx-8.21"
+	FIRMWARE_IMX="firmware-imx-8.28-994fa14"
 	FIRMWARE_SENTINEL="firmware-sentinel-0.11"
 	MKIMAGE_BRANCH="lf-6.1.36_2.1.0"
 	MKIMAGE_DIR="imx-mkimage"
@@ -236,6 +239,7 @@ if [ "$MKIMAGE_BRANCH" != "" ]; then
 	run make REV=$CPU_REV SOC=$MKIMAGE_SOC $MKIMAGE_TARGET
 	run cd ..
 	echo "The result is: $MKIMAGE_OUT_DIR/flash.bin"
+	CPU_REV=""
 fi
 
 echo "done."
