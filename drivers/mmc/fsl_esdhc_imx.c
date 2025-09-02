@@ -550,6 +550,11 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 				}
 			} while ((irqstat & flags) != flags);
 
+			/* Add 10us delay for Errata ERR052357 */
+			if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_052357) &&
+			    (data->flags & MMC_DATA_READ))
+				udelay(10);
+
 			/*
 			 * Need invalidate the dcache here again to avoid any
 			 * cache-fill during the DMA operations such as the
@@ -991,11 +996,11 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 	ulong start;
 
 	/* Reset the entire host controller */
-	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA);
+	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA | SYSCTL_RSTT);
 
 	/* Wait until the controller is available */
 	start = get_timer(0);
-	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA)) {
+	while ((esdhc_read32(&regs->sysctl) & (SYSCTL_RSTA | SYSCTL_RSTT))) {
 		if (get_timer(start) > 1000)
 			return -ETIMEDOUT;
 	}
@@ -1099,11 +1104,11 @@ static int esdhc_reset(struct fsl_esdhc *regs)
 	ulong start;
 
 	/* reset the controller */
-	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA);
+	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA | SYSCTL_RSTT);
 
 	/* hardware clears the bit when it is done */
 	start = get_timer(0);
-	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA)) {
+	while ((esdhc_read32(&regs->sysctl) & (SYSCTL_RSTA | SYSCTL_RSTT))) {
 		if (get_timer(start) > 100) {
 			printf("MMC/SD: Reset never completed.\n");
 			return -ETIMEDOUT;
