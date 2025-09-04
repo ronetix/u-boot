@@ -131,6 +131,9 @@ int power_init_board(void)
 	/* BUCK2 - set 0.625V (0.6V + 2*12.5mV */
 	pmic_reg_write(dev, PCA9450_BUCK2OUT_DVS0, 0x2);
 
+	/* BUCK6 - set 1.150V (1.1V + 2*25mV */
+	pmic_reg_write(dev, PCA9450_BUCK6OUT, 0x14 + 2);
+
 	/* I2C_LT_EN*/
 	pmic_reg_write(dev, 0xa, 0x3);
 	return 0;
