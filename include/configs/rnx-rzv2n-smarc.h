@@ -47,23 +47,25 @@
 /* The HF/QSPI layout permits up to 1 MiB large bootloader blob */
 #define CONFIG_BOARD_SIZE_LIMIT		1048576
 
+#define KERNEL_IMAGE	"Image-rnx-rzv2n-smarc.bin"
+#define KERNEL_DTB		"rnx-rzv2n-smarc.dtb"
+
 /* ENV setting */
 #define CFG_EXTRA_ENV_SETTINGS	\
 	"serverip=192.168.3.5\0" \
 	"ipaddr=192.168.3.111\0" \
 	"usb_pgood_delay=2000\0" \
 	"bootm_size=0x10000000\0" \
-	"prodsdbootargs=setenv bootargs rw rootwait earlycon root=/dev/mmcblk1p2 \0" \
-	"prodemmcbootargs=setenv bootargs rw rootwait earlycon root=/dev/mmcblk0p2 \0" \
+	"sdbootargs=setenv bootargs rw rootwait earlycon root=/dev/mmcblk1p2 \0" \
+	"emmcbootargs=setenv bootargs rw rootwait earlycon root=/dev/mmcblk0p2 \0" \
 	"bootimage=booti 0x48080000 - 0x48000000 \0" \
-	"emmcload=ext4load mmc 0:2 0x48080000 boot/Image;ext4load mmc 0:2 0x48000000 boot/r9a09g056n48-rzv2n-evk.dtb;run prodemmcbootargs \0" \
-	"sd1load=ext4load mmc 1:3 0x48080000 boot/Image;ext4load mmc 1:3 0x48000000 boot/rzv2n-evk.dtb;run prodsdbootargs \0" \
-	"netload=tftp 0x48080000 Image-rzv2n-evk.bin;tftp 0x48000000 Image-r9a09g056n44-evk.dtb;run prodsdbootargs \0" \
-	"bootn=tftp 0x48080000 Image-rzv2n-evk.bin;tftp 0x48000000 Image-r9a09g056n44-evk.dtb;run prodsdbootargs;run bootimage \0" \
-	"boots=run sd1load;run bootimage \0" \
-	"bootcmd_check=mmc dev 1;run netload\0"
+	"emmcload=mmc dev 0;ext4load mmc 0:2 0x48080000 "KERNEL_IMAGE";ext4load mmc 0:2 0x48000000 "KERNEL_DTB";run emmcbootargs \0" \
+	"sd1load=mmc dev 1; ext4load mmc 1:3 0x48080000 "KERNEL_IMAGE";ext4load mmc 1:3 0x48000000 "KERNEL_DTB";run sdbootargs \0" \
+	"netload=tftp 0x48080000 "KERNEL_IMAGE";tftp 0x48000000 "KERNEL_DTB";run sdbootargs \0" \
+	"bootn=run netload;run bootimage \0" \
+	"boots=run sd1load;run bootimage \0"
 
-#define CONFIG_BOOTCOMMAND	"run bootcmd_check;run bootimage"
+#define CONFIG_BOOTCOMMAND	"run netload;run bootimage"
 
 /* For board */
 /* Ethernet RAVB */
