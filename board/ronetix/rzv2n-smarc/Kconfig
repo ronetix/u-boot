@@ -1,0 +1,16 @@
+if TARGET_RNX_RZV2N_SMARC
+
+config SYS_SOC
+	default "renesas"
+
+config SYS_BOARD
+	default "rzv2n-smarc"
+
+config SYS_VENDOR
+	default "ronetix"
+
+config SYS_CONFIG_NAME
+	default "rnx-rzv2n-smarc"
+
+endif
+

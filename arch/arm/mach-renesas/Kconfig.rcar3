@@ -257,6 +257,11 @@ config TARGET_RZV2N_EVK
 	help
           Support for Renesas RZ/V2N Dev Platform
 
+config TARGET_RNX_RZV2N_SMARC
+	bool "Ronetix RZ/V2N SMARC SoM"
+	help
+          Support for Ronetix RZ/V2N SMARC SoM
+
 config TARGET_RZV2H_EVK_ALPHA
 	bool "RZ/V2H EVK Alpha board"
 	help
@@ -301,6 +306,7 @@ source "board/renesas/rzg2lc-dev/Kconfig"
 source "board/renesas/rzg2ul-dev/Kconfig"
 source "board/renesas/rzv2h-dev/Kconfig"
 source "board/renesas/rzv2n-dev/Kconfig"
+source "board/ronetix/rzv2n-smarc/Kconfig"
 source "board/renesas/rzg3e-dev/Kconfig"
 source "board/renesas/rzg3s-dev/Kconfig"
 
