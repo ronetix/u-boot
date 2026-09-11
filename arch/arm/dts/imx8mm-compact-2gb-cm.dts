@@ -1,0 +1,63 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2019 NXP
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/usb/pd.h>
+#include "imx8mm.dtsi"
+#include "imx8mm-ronetix.dtsi"
+
+/ {
+	model = "Ronetix i.MX8MM-COMPACT-2GB-CM board";
+	compatible = "ronetix,imx8mm-compact-2gb-cm", "fsl,imx8mm";
+	
+	reg_usb_otg1_vbus: regulator-usb-otg1-vbus {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_usb_otg1_vbus_reg>;
+		regulator-name = "usb_otg1_vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio1 12 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
+
+&usbotg1 {
+	vbus-supply = <&reg_usb_otg1_vbus>;
+	dr_mode = "host";
+	status = "okay";
+};
+
+&fec1 {
+	phy-reset-duration = <10>;
+	phy-reset-post-delay = <50>;
+};
+
+&ethphy0 {
+			reg = <1>;
+			compatible = "ethernet-phy-id0022.1640",
+			     		 "ethernet-phy-ieee802.3-c22";
+			rxc-skew-psec = <2400>;
+			txc-skew-psec = <2400>;
+			rxdv-skew-psec = <0>;
+			txen-skew-psec = <0>;
+			rxd0-skew-psec = <0>;
+			rxd1-skew-psec = <0>;
+			rxd2-skew-psec = <0>;
+			rxd3-skew-psec = <0>;
+			txd0-skew-psec = <0>;
+			txd1-skew-psec = <0>;
+			txd2-skew-psec = <0>;
+			txd3-skew-psec = <0>;
+};
+
+&iomuxc {
+	pinctrl_usb_otg1_vbus_reg: pinctrl_usb_otg2_vbus_reg_grp {
+		fsl,pins = <
+			MX8MM_IOMUXC_GPIO1_IO12_GPIO1_IO12		0x19
+		>;
+	};
+};

@@ -69,6 +69,12 @@ config TARGET_IMX8MM_COMPACT_CM
         select SUPPORT_SPL
         select IMX8M_LPDDR4
 
+config TARGET_IMX8MM_COMPACT_2GB_CM
+        bool "iMX8MM-COMPACT-2GB-CM board"
+        select IMX8MM
+        select SUPPORT_SPL
+        select IMX8M_LPDDR4
+
 config TARGET_IMX8MM_CM
         bool "iMX8MM-CM board"
         select IMX8MM
