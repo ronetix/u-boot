@@ -42,7 +42,11 @@
 #define PHY_ANEG_TIMEOUT 20000
 
 #define CONFIG_FEC_XCV_TYPE             RGMII
+#ifdef CONFIG_TARGET_IMX8MM_COMPACT_2GB_CM
+#define CONFIG_FEC_MXC_PHYADDR          1  /* KSZ9131RNX */
+#else
 #define CONFIG_FEC_MXC_PHYADDR          0
+#endif
 #define FEC_QUIRK_ENET_MAC
 
 #define IMX_FEC_BASE			0x30BE0000
