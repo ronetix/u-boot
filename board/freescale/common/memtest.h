@@ -6,7 +6,7 @@
 #ifndef __MEMTEST_BOARD_HELPER__
 #define __MEMTEST_BOARD_HELPER__
 
-int mem_test(uint64_t start, int len, int block_size, int test_size);
+int mem_test(uint64_t start, uint32_t len, uint32_t block_size, uint32_t test_size);
 
 #endif
 

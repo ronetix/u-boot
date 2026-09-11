@@ -15,9 +15,9 @@
  * @param pattern
  * @return
  */
-static uint64_t mem_block_test(uint64_t start, int len)
+static uint64_t mem_block_test(uint64_t start, uint32_t len)
 {
-	int i;
+	uint32_t i;
 	uint64_t *p;
 	uint64_t val;
 
@@ -55,15 +55,16 @@ static uint64_t mem_block_test(uint64_t start, int len)
  * @param test_size - test length in bytes
  * @return
  */
-int mem_test(uint64_t addr, int len, int block_size, int test_size)
+int mem_test(uint64_t addr, uint32_t len, uint32_t block_size, uint32_t test_size)
 {
-	int i;
+	uint32_t i, nblocks;
 
 	addr &= ~7;
 
-	printf("Fast testing %d MiB @ 0x%lx ... ", len / 1024 / 1024, (unsigned long)addr);
+	printf("Fast testing %u MiB @ 0x%lx ... ", len / 1024 / 1024, (unsigned long)addr);
 
-	for (i = 0; i < len / block_size; i++)
+	nblocks = len / block_size;
+	for (i = 0; i < nblocks; i++)
 	{
 		uint64_t ret;
 
