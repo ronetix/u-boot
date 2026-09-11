@@ -393,9 +393,255 @@ static struct phy_driver ksz9031_driver = {
 	.readext = &ksz9031_phy_extread,
 };
 
+/*
+ * KSZ9131
+ *
+ * This chip is not supported upstream in this 2020.04-based tree, but is
+ * register-compatible with the KSZ9031's indirect MMD access mechanism
+ * (registers 0x0d/0x0e), so ksz9031_phy_ext{read,write}() are reused as-is.
+ * Skew configuration itself uses different MMD-2 register offsets and a
+ * signed-picosecond formula, ported from mainline U-Boot's ksz9131 driver
+ * (drivers/net/phy/micrel_ksz90x1.c, KSZ9131 section).
+ */
+#define KSZ9131RN_MMD_COMMON_CTRL_REG	2
+#define KSZ9131RN_RXC_DLL_CTRL		76
+#define KSZ9131RN_TXC_DLL_CTRL		77
+#define KSZ9131RN_DLL_CTRL_BYPASS	0x1000	/* bit 12 */
+#define KSZ9131RN_DLL_ENABLE_DELAY	0
+#define KSZ9131RN_DLL_DISABLE_DELAY	KSZ9131RN_DLL_CTRL_BYPASS
+
+#define KSZ9131RN_COMMON_CTRL				0
+#define KSZ9131RN_COMMON_CTRL_INDIVIDUAL_LED_MODE	0x0010	/* bit 4 */
+
+#define KSZ9131RN_LED_ERRATA_REG	0x1e
+#define KSZ9131RN_LED_ERRATA_BIT	0x0200	/* bit 9 */
+
+#define KSZ9131RN_CONTROL_PAD_SKEW	4
+#define KSZ9131RN_RX_DATA_PAD_SKEW	5
+#define KSZ9131RN_TX_DATA_PAD_SKEW	6
+#define KSZ9131RN_CLK_PAD_SKEW		8
+
+/* regval = ((ps + KSZ9131RN_OFFSET) / KSZ9131RN_STEP) & fieldmax
+ * 700ps offset == the field's electrical center (0ps of adjustment),
+ * 100ps per LSB. Valid ps range is [-700, fieldmax*100 - 700], i.e.
+ * [-700, 2400] for the 5-bit clock-skew fields and [-700, 800] for the
+ * 4-bit fields.
+ */
+#define KSZ9131RN_OFFSET		700
+#define KSZ9131RN_STEP			100
+
+#ifdef CONFIG_DM_ETH
+static const struct ksz90x1_reg_field ksz9131_clk_grp[] = {
+	{ "rxc-skew-psec", 5, 0, 0x7 }, { "txc-skew-psec", 5, 5, 0x7 },
+};
+
+static const struct ksz90x1_reg_field ksz9131_ctrl_grp[] = {
+	{ "txen-skew-psec", 4, 0, 0x7 }, { "rxdv-skew-psec", 4, 4, 0x7 },
+};
+
+static const struct ksz90x1_reg_field ksz9131_rxd_grp[] = {
+	{ "rxd0-skew-psec", 4, 0, 0x7 }, { "rxd1-skew-psec", 4, 4, 0x7 },
+	{ "rxd2-skew-psec", 4, 8, 0x7 }, { "rxd3-skew-psec", 4, 12, 0x7 },
+};
+
+static const struct ksz90x1_reg_field ksz9131_txd_grp[] = {
+	{ "txd0-skew-psec", 4, 0, 0x7 }, { "txd1-skew-psec", 4, 4, 0x7 },
+	{ "txd2-skew-psec", 4, 8, 0x7 }, { "txd3-skew-psec", 4, 12, 0x7 },
+};
+
+static int ksz9131_of_config_group(struct phy_device *phydev,
+				    struct ksz90x1_ofcfg *ofcfg)
+{
+	struct udevice *dev = phydev->dev;
+	struct phy_driver *drv = phydev->drv;
+	int val[4];
+	int i, changed = 0, offset, max, ps;
+	u16 regval = 0;
+	ofnode node;
+
+	if (!drv || !drv->writeext)
+		return -EOPNOTSUPP;
+
+	node = dev_read_subnode(dev, "ethernet-phy");
+	if (!ofnode_valid(node))
+		node = dev_ofnode(dev);
+
+	for (i = 0; i < ofcfg->grpsz; i++) {
+		offset = ofcfg->grp[i].off;
+		max = (1 << ofcfg->grp[i].size) - 1;
+
+		val[i] = ofnode_read_u32_default(node, ofcfg->grp[i].name, ~0);
+		if (val[i] == -1) {
+			/* Not specified in the devicetree: leave centered (0ps) */
+			regval |= ofcfg->grp[i].dflt << offset;
+			continue;
+		}
+
+		changed = 1;
+		ps = val[i];
+		if (ps < -KSZ9131RN_OFFSET)
+			ps = -KSZ9131RN_OFFSET;
+		if (ps > (max * KSZ9131RN_STEP) - KSZ9131RN_OFFSET)
+			ps = (max * KSZ9131RN_STEP) - KSZ9131RN_OFFSET;
+
+		regval |= (((ps + KSZ9131RN_OFFSET) / KSZ9131RN_STEP) & max)
+			  << offset;
+	}
+
+	if (!changed)
+		return 0;
+
+	return drv->writeext(phydev, 0, ofcfg->devad, ofcfg->reg, regval);
+}
+
+static int ksz9131_of_load_skew_values(struct phy_device *phydev)
+{
+	struct ksz90x1_ofcfg ofcfg[] = {
+		{ KSZ9131RN_CLK_PAD_SKEW, KSZ9131RN_MMD_COMMON_CTRL_REG,
+		  ksz9131_clk_grp, 2 },
+		{ KSZ9131RN_CONTROL_PAD_SKEW, KSZ9131RN_MMD_COMMON_CTRL_REG,
+		  ksz9131_ctrl_grp, 2 },
+		{ KSZ9131RN_RX_DATA_PAD_SKEW, KSZ9131RN_MMD_COMMON_CTRL_REG,
+		  ksz9131_rxd_grp, 4 },
+		{ KSZ9131RN_TX_DATA_PAD_SKEW, KSZ9131RN_MMD_COMMON_CTRL_REG,
+		  ksz9131_txd_grp, 4 },
+	};
+	int i, ret;
+
+	for (i = 0; i < ARRAY_SIZE(ofcfg); i++) {
+		ret = ksz9131_of_config_group(phydev, &ofcfg[i]);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+static int ksz9131_config_rgmii_delay(struct phy_device *phydev)
+{
+	struct phy_driver *drv = phydev->drv;
+	u16 rxcdll_val, txcdll_val;
+
+	if (!drv || !drv->writeext)
+		return -EOPNOTSUPP;
+
+	switch (phydev->interface) {
+	case PHY_INTERFACE_MODE_RGMII:
+		rxcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_ID:
+		rxcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+		rxcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		rxcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		break;
+	default:
+		return 0;
+	}
+
+	if (drv->writeext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			   KSZ9131RN_RXC_DLL_CTRL, rxcdll_val))
+		return -EIO;
+
+	return drv->writeext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			      KSZ9131RN_TXC_DLL_CTRL, txcdll_val);
+}
+#else /* !CONFIG_DM_ETH */
+static int ksz9131_of_load_skew_values(struct phy_device *phydev)
+{
+	return 0;
+}
+
+static int ksz9131_config_rgmii_delay(struct phy_device *phydev)
+{
+	return 0;
+}
+#endif
+
+static int ksz9131_led_errata(struct phy_device *phydev)
+{
+	struct phy_driver *drv = phydev->drv;
+	int reg;
+	u16 val;
+
+	if (!drv || !drv->writeext || !drv->readext)
+		return -EOPNOTSUPP;
+
+	reg = drv->readext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			    KSZ9131RN_COMMON_CTRL);
+	if (reg < 0)
+		return reg;
+
+	if (!(reg & KSZ9131RN_COMMON_CTRL_INDIVIDUAL_LED_MODE))
+		return 0;
+
+	val = phy_read(phydev, MDIO_DEVAD_NONE, KSZ9131RN_LED_ERRATA_REG);
+	return phy_write(phydev, MDIO_DEVAD_NONE, KSZ9131RN_LED_ERRATA_REG,
+			  val | KSZ9131RN_LED_ERRATA_BIT);
+}
+
+static int ksz9131_config(struct phy_device *phydev)
+{
+	int ret;
+
+	ret = ksz9131_config_rgmii_delay(phydev);
+	if (ret)
+		return ret;
+
+	ret = ksz9131_of_load_skew_values(phydev);
+	if (ret)
+		return ret;
+
+	ksz9131_led_errata(phydev);
+
+	/* add an option to disable the gigabit feature of this PHY */
+	if (env_get("disable_giga")) {
+		unsigned features;
+		unsigned bmcr;
+
+		features = phydev->drv->features;
+		features &= ~(SUPPORTED_1000baseT_Half |
+				SUPPORTED_1000baseT_Full);
+		phydev->advertising = phydev->supported = features;
+
+		bmcr = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
+		bmcr &= ~(1 << 6);
+		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, bmcr);
+
+		phy_write(phydev, MDIO_DEVAD_NONE, MII_CTRL1000, 0);
+
+		genphy_config_aneg(phydev);
+		genphy_restart_aneg(phydev);
+
+		return 0;
+	}
+
+	return genphy_config(phydev);
+}
+
+static struct phy_driver ksz9131_driver = {
+	.name = "Micrel ksz9131",
+	.uid  = 0x00221640,
+	.mask = 0xfffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config   = &ksz9131_config,
+	.startup  = &ksz90xx_startup,
+	.shutdown = &genphy_shutdown,
+	.writeext = &ksz9031_phy_extwrite,
+	.readext  = &ksz9031_phy_extread,
+};
+
 int phy_micrel_ksz90x1_init(void)
 {
 	phy_register(&ksz9021_driver);
 	phy_register(&ksz9031_driver);
+	phy_register(&ksz9131_driver);
 	return 0;
 }
