@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2019 NXP
+ * Copyright 2026 Ronetix GmbH
+ */
+
+#include "imx8mn-ddr4-evk-u-boot.dtsi"
+
+&i2c2 {
+	bootph-pre-ram;
+};
+
+&{/soc@0/bus@30800000/i2c@30a30000/pmic@4b} {
+	bootph-pre-ram;
+};
+
+&{/soc@0/bus@30800000/i2c@30a30000/pmic@4b/regulators} {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_pmic {
+	bootph-pre-ram;
+};

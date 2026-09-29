@@ -1,0 +1,9 @@
+i.MX8MN-COMPACT-CM BOARD
+M:	Ilko Iliev <iliev@ronetix.at>
+S:	Maintained
+F:	board/ronetix/imx8mn-cm/
+F:	include/configs/imx8mn_compact_cm.h
+F:	configs/imx8mn_compact_cm_defconfig
+F:	arch/arm/dts/imx8mn-compact-cm.dts
+F:	arch/arm/dts/imx8mn-compact-cm.dtsi
+F:	arch/arm/dts/imx8mn-compact-cm-u-boot.dtsi

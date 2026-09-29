@@ -164,6 +164,14 @@ config TARGET_IMX8MN_BSH_SMM_S2PRO
 	select IMX8M_DDR3L
 	imply OF_UPSTREAM
 
+config TARGET_IMX8MN_COMPACT_CM
+	bool "Ronetix i.MX8MN-COMPACT-CM board"
+	select IMX8MN
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select SPL_CRYPTO if SPL
+
 config TARGET_IMX8MN_EVK
 	bool "imx8mn LPDDR4 EVK board"
 	select IMX8MN
@@ -402,6 +410,7 @@ source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/polyhex/imx8mp_debix_model_a/Kconfig"
 source "board/purism/librem5/Kconfig"
 source "board/ronetix/imx8mm-cm/Kconfig"
+source "board/ronetix/imx8mn-cm/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"
 source "board/variscite/imx8mn_var_som/Kconfig"

@@ -1,0 +1,15 @@
+if TARGET_IMX8MN_COMPACT_CM
+
+config SYS_BOARD
+	default "imx8mn-cm"
+
+config SYS_VENDOR
+	default "ronetix"
+
+config SYS_CONFIG_NAME
+	default "imx8mn_compact_cm"
+
+config IMX_CONFIG
+	default "board/ronetix/imx8mn-cm/imximage-8mn-lpddr4.cfg"
+
+endif
