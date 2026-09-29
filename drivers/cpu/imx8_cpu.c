@@ -36,8 +36,34 @@ static const char *get_imx_type_str(u32 imxtype)
 	switch (imxtype) {
 	case MXC_CPU_IMX8MM:
 		return "8MM";
+	case MXC_CPU_IMX8MML:
+		return "8MML";
+	case MXC_CPU_IMX8MMD:
+		return "8MMD";
+	case MXC_CPU_IMX8MMDL:
+		return "8MMDL";
+	case MXC_CPU_IMX8MMS:
+		return "8MMS";
+	case MXC_CPU_IMX8MMSL:
+		return "8MMSL";
 	case MXC_CPU_IMX8MN:
 		return "8MN";
+	case MXC_CPU_IMX8MND:
+		return "8MND";
+	case MXC_CPU_IMX8MNS:
+		return "8MNS";
+	case MXC_CPU_IMX8MNL:
+		return "8MNL";
+	case MXC_CPU_IMX8MNDL:
+		return "8MNDL";
+	case MXC_CPU_IMX8MNSL:
+		return "8MNSL";
+	case MXC_CPU_IMX8MNUQ:
+		return "8MNUQ";
+	case MXC_CPU_IMX8MNUD:
+		return "8MNUD";
+	case MXC_CPU_IMX8MNUS:
+		return "8MNUS";
 	case MXC_CPU_IMX8MP:
 		return "8MP";
 	case MXC_CPU_IMX8QXP:
