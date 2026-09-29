@@ -28,20 +28,33 @@
 
 #include <config_distro_bootcmd.h>
 
+/*
+ * Memory layout for distro boot: room for a kernel Image of up to 96 MiB
+ * at kernel_addr_r before fdt_addr_r.
+ */
+#define ENV_MEM_LAYOUT_SETTINGS \
+	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"kernel_addr_r=0x42000000\0" \
+	"fdt_addr_r=0x48000000\0" \
+	"fdtoverlay_addr_r=0x49000000\0" \
+	"ramdisk_addr_r=0x48080000\0" \
+	"initrd_addr=0x48080000\0" \
+	"scriptaddr=0x40000000\0" \
+	"pxefile_addr_r=0x40100000\0"
+
 /* Initial environment variables */
 #define CFG_EXTRA_ENV_SETTINGS		\
 	BOOTENV \
-	"scriptaddr=0x43500000\0" \
-	"kernel_addr_r=0x40880000\0" \
 	"image=Image\0" \
 	"console=ttymxc0,115200\0" \
-	"fdt_addr=0x43000000\0"			\
+	"fdt_addr=0x48000000\0"			\
 	"boot_fdt=try\0" \
 	"fdt_file=imx8mq-cm.dtb\0" \
-	"initrd_addr=0x43800000\0"		\
+	"fdtfile=imx8mq-cm.dtb\0" \
 	"bootm_size=0x10000000\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk1p2 rootwait rw\0" \
+	ENV_MEM_LAYOUT_SETTINGS
 
 /* Link Definitions */
 
