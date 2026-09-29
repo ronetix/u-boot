@@ -1,0 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2026 Ronetix GmbH
+ */
+
+#include "imx8mm-compact-2gb-cm-u-boot.dtsi"

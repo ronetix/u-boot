@@ -1,0 +1,105 @@
+U-Boot for the Ronetix i.MX8MM-COMPACT-CM boards
+
+Supported boards
+================
+  defconfig                        LPDDR4  Ethernet PHY
+  -------------------------------  ------  ----------------------
+  imx8mm_compact_2gb_cm_defconfig  2 GB    KSZ9131RNX, address 1
+  imx8mm_compact_cm_defconfig      1 GB    AR8031, address 0 (older revision)
+
+Common hardware:
+  - PMIC:    ROHM BD718xx at 0x4b on I2C2
+  - Console: UART2, 115200 8N1
+  - SD card: USDHC2 (U-Boot mmc 1), card detect GPIO2_12
+  - eMMC:    USDHC3 (U-Boot mmc 2)
+
+Quick Start
+===========
+- Set the cross compiler
+- Get the ARM Trusted Firmware and the DDR firmware
+- Build U-Boot
+- Write flash.bin to the SD card and/or the eMMC
+- Boot
+
+Set the cross compiler
+======================
+$ export CROSS_COMPILE=/opt/cross/aarch64-ronetix-linux-gnu-11.1.0/bin/aarch64-ronetix-linux-gnu-
+
+Get the ARM Trusted Firmware and the DDR firmware
+=================================================
+From the U-Boot top directory:
+
+$ tools/imx8m_build_firmware.sh imx8mm
+
+The script builds BL31 from https://github.com/nxp-imx/imx-atf
+(branch lf_v2.10) and copies it to bl31.bin, and gets the LPDDR4 training
+firmware (lpddr4_pmu_train_*.bin) from the NXP firmware-imx-8.20 package.
+Both are only downloaded if missing.
+
+Run the script again after building U-Boot for an i.MX8MN board, since
+BL31 is SoC specific.
+
+Build U-Boot
+============
+$ make imx8mm_compact_2gb_cm_defconfig   (or imx8mm_compact_cm_defconfig)
+$ make
+
+The result is flash.bin (SPL, DDR firmware, BL31 and U-Boot).
+
+Write flash.bin to the SD card at offset 33 KiB
+===============================================
+$ sudo dd if=flash.bin of=/dev/sd[x] bs=1024 seek=33 conv=fsync
+
+Write flash.bin to the eMMC
+===========================
+The eMMC is USDHC3: "mmc 2" in U-Boot, /dev/mmcblk2 in Linux.
+flash.bin can be written either to the user area or to a boot partition
+(boot0/boot1). The offset is 33 KiB in the user area and 33 KiB in a
+boot partition.
+
+From U-Boot (booted from the SD card)
+-------------------------------------
+Load flash.bin into RAM, from the FAT partition of the SD card:
+  => fatload mmc 1:1 ${loadaddr} flash.bin
+or over the network:
+  => tftpboot ${loadaddr} flash.bin
+
+Calculate the size in 512-byte blocks:
+  => setexpr blkcnt ${filesize} + 1ff
+  => setexpr blkcnt ${blkcnt} / 200
+
+a) User area, offset 33 KiB = block 0x42:
+  => mmc dev 2 0
+  => mmc write ${loadaddr} 0x42 ${blkcnt}
+  => mmc partconf 2 0 7 0      (boot from the user area)
+
+b) Boot partition boot0, offset 33 KiB = block 0x42:
+  => mmc dev 2 1
+  => mmc write ${loadaddr} 0x42 ${blkcnt}
+  => mmc partconf 2 1 1 0      (boot from boot0, boot ACK enabled)
+
+From Linux
+----------
+a) User area:
+  # dd if=flash.bin of=/dev/mmcblk2 bs=1024 seek=33 conv=fsync
+
+b) Boot partition boot0:
+  # echo 0 > /sys/block/mmcblk2boot0/force_ro
+  # dd if=flash.bin of=/dev/mmcblk2boot0 bs=1024 seek=33 conv=fsync
+  # echo 1 > /sys/block/mmcblk2boot0/force_ro
+  # mmc bootpart enable 1 1 /dev/mmcblk2   (mmc-utils)
+
+Boot
+====
+Set the boot switch to SD boot or eMMC boot and power on the board.
+
+The first time, boot from the SD card, then write flash.bin to the eMMC
+as described above and switch to eMMC boot.
+
+Notes
+=====
+- The MAC address fuses are not programmed, a random MAC address is used.
+  Set a fixed one with:
+    => setenv ethaddr xx:xx:xx:xx:xx:xx; saveenv
+- "bad CRC, using default environment" on the first boot is expected,
+  run "saveenv" once.

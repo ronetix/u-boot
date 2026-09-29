@@ -81,6 +81,24 @@ config TARGET_IMX8MM_EVK
 	select SPL_CRYPTO if SPL
 	imply OF_UPSTREAM
 
+config TARGET_IMX8MM_COMPACT_CM
+	bool "Ronetix i.MX8MM-COMPACT-CM board (1GB LPDDR4)"
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
+
+config TARGET_IMX8MM_COMPACT_2GB_CM
+	bool "Ronetix i.MX8MM-COMPACT-2GB-CM board (2GB LPDDR4)"
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
+
 config TARGET_IMX8MM_ICORE_MX8MM
 	bool "Engicam i.Core MX8M Mini SOM"
 	select IMX8MM
@@ -383,6 +401,7 @@ source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/polyhex/imx8mp_debix_model_a/Kconfig"
 source "board/purism/librem5/Kconfig"
+source "board/ronetix/imx8mm-cm/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"
 source "board/variscite/imx8mn_var_som/Kconfig"
