@@ -13,26 +13,17 @@
 #define CFG_SYS_UBOOT_BASE	\
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
+#include "ronetix_imx8m.h"
+
+/* per MMC device: distro boot first, then the Image/fdtfile fallback */
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
+	func(RAWMMC, rawmmc, 1) \
 	func(MMC, mmc, 2) \
+	func(RAWMMC, rawmmc, 2) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-
-/*
- * Memory layout for distro boot: room for a kernel Image of up to 96 MiB
- * at kernel_addr_r before fdt_addr_r.
- */
-#define ENV_MEM_LAYOUT_SETTINGS \
-	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
-	"kernel_addr_r=0x42000000\0" \
-	"fdt_addr_r=0x48000000\0" \
-	"fdtoverlay_addr_r=0x49000000\0" \
-	"ramdisk_addr_r=0x48080000\0" \
-	"initrd_addr=0x48080000\0" \
-	"scriptaddr=0x40000000\0" \
-	"pxefile_addr_r=0x40100000\0"
 
 /* Initial environment variables */
 #define CFG_EXTRA_ENV_SETTINGS		\
@@ -42,8 +33,7 @@
 	"boot_fit=no\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"bootm_size=0x10000000\0" \
-	"mmcpart=1\0" \
-	"mmcroot=/dev/mmcblk1p2 rootwait rw\0" \
+	RONETIX_RAWBOOT_ENV \
 	ENV_MEM_LAYOUT_SETTINGS
 
 /* Link Definitions */

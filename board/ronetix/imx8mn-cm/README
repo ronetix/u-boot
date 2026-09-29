@@ -103,6 +103,25 @@ SPL loads U-Boot through the boot ROM API ("Trying to boot from BOOTROM").
 "Boot Stage: Recovery boot" means the boot ROM could not boot from the
 primary boot device (e.g. an empty eMMC) and fell back to the SD card.
 
+Booting Linux
+=============
+For every MMC device (SD card first, then eMMC) U-Boot tries:
+
+1. Distro boot from the first (FAT) partition:
+   extlinux/extlinux.conf, boot.scr or EFI. This is what Yocto images use
+   (UBOOT_EXTLINUX = "1").
+
+2. Fallback, when none of these files exists: load "Image" and the device
+   tree ${fdtfile} from the first partition and boot with
+     console=${console} root=/dev/mmcblkXp2 rootwait rw ${optargs}
+   where X is the MMC device (SD card: 1, eMMC: 2), so a card prepared by
+   hand with just Image and the .dtb boots without an extlinux.conf.
+   Extra kernel arguments:
+     => setenv optargs "quiet"; saveenv
+
+Memory layout: kernel_addr_r=0x42000000, fdt_addr_r=0x48000000
+(room for a kernel Image of up to 96 MiB).
+
 Notes
 =====
 - The MAC address fuses are not programmed, a random MAC address is used.
