@@ -2213,7 +2213,7 @@ CHANGELOG:
 # make distclean Remove editor backup files, patch leftover files and the like
 
 # Directories & files removed with 'make clean'
-CLEAN_DIRS  += $(MODVERDIR) \
+CLEAN_DIRS  += $(MODVERDIR) binman-fake \
 	       $(foreach d, spl tpl vpl, $(patsubst %,$d/%, \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
@@ -2227,7 +2227,9 @@ CLEAN_FILES += include/autoconf.mk* include/bmp_logo.h include/bmp_logo_data.h \
 	       itb.fit.fit itb.fit.itb itb.map spl.map mkimage-out.rom.mkimage \
 	       mkimage.rom.mkimage mkimage-in-simple-bin* rom.map simple-bin* \
 	       idbloader-spi.img lib/efi_loader/helloworld_efi.S *.itb \
-	       Test* capsule.*.efi-capsule capsule*.map
+	       Test* capsule.*.efi-capsule capsule*.map \
+	       .binman_stamp spl.bin section.fit.fit \
+	       mkimage-out.u-boot-container.mkimage mkimage.u-boot-container.mkimage
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl vpl \
