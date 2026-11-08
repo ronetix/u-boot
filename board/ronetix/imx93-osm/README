@@ -26,8 +26,21 @@ $ make
 The result is flash.bin (ELE container, SPL, DDR firmware, BL31 and U-Boot).
 Do not use "make flash.bin", on i.MX93 this target fails with
 "No rule to make target 'u-boot.cnt'".
-The ELE container is the one for i.MX93 silicon revision A1
-(arch/arm/mach-imx/imx9/imximage.cfg).
+
+CPU revision
+============
+The ELE container in flash.bin depends on the i.MX93 CPU revision.
+The default is A1 (RNX-iMX93-SMARC v1.1). For CPU revision A0
+(RNX-iMX93-SMARC v1.0):
+
+$ CPU_REV=A0 tools/imx_build_firmware.sh imx93
+$ make
+
+The script copies the container of the selected revision to
+mx93-ahab-container.img, which board/ronetix/imx93-osm/imximage.cfg
+appends to flash.bin. The U-Boot binary is the same for both revisions.
+A flash.bin with the container of the wrong revision does not boot.
+Run the script without CPU_REV to go back to A1.
 
 Write flash.bin to the SD card at offset 32 KiB
 ===============================================
