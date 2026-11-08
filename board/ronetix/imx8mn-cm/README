@@ -29,7 +29,7 @@ Get the ARM Trusted Firmware and the DDR firmware
 =================================================
 From the U-Boot top directory:
 
-$ tools/imx8m_build_firmware.sh imx8mn
+$ tools/imx_build_firmware.sh imx8mn
 
 The script builds BL31 from https://github.com/nxp-imx/imx-atf
 (branch lf_v2.10) and copies it to bl31.bin, and gets the LPDDR4 training

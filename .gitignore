@@ -134,5 +134,11 @@ __pycache__
 # Clang's compilation database file
 /compile_commands.json
 
+# Downloaded and built by tools/imx_build_firmware.sh
+/imx-atf/
+/imx-atf-imx93/
+/firmware-imx-*/
+/firmware-sentinel-*/
+
 # binman mkimage intermediate files
 /mkimage*.mkimage
