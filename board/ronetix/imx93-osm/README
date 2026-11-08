@@ -1,0 +1,55 @@
+U-Boot for the Ronetix RNX-iMX93-OSM and RNX-iMX93-SMARC boards
+
+Supported boards
+================
+  defconfig                     Board             LPDDR4X
+  ----------------------------  ----------------  -------
+  imx93-rnx_osm_defconfig       RNX-iMX93-OSM     1 GB
+  imx93-rnx_smarc_defconfig     RNX-iMX93-SMARC   1 GB
+  imx93-rnx_smarc_2gb_defconfig RNX-iMX93-SMARC   2 GB
+
+Common hardware:
+  - PMIC:     NXP PCA9451A at 0x25 on LPI2C2
+  - Console:  LPUART1, 115200 8N1
+  - eMMC:     USDHC1 (U-Boot mmc 0)
+  - SD card:  USDHC2 (U-Boot mmc 1)
+  - Ethernet: EQOS (eth1, default, PHY address 1), FEC (eth0, PHY address 2)
+
+Quick Start
+===========
+$ export ARCH=arm64
+$ export CROSS_COMPILE=/opt/cross/aarch64-ronetix-linux-gnu-11.1.0/bin/aarch64-ronetix-linux-gnu-
+$ make imx93-rnx_osm_defconfig
+$ tools/imx_build_firmware.sh imx93
+$ make
+
+The result is flash.bin (ELE container, SPL, DDR firmware, BL31 and U-Boot).
+Do not use "make flash.bin", on i.MX93 this target fails with
+"No rule to make target 'u-boot.cnt'".
+The ELE container is the one for i.MX93 silicon revision A1
+(arch/arm/mach-imx/imx9/imximage.cfg).
+
+Write flash.bin to the SD card at offset 32 KiB
+===============================================
+$ sudo dd if=flash.bin of=/dev/sdX bs=1k seek=32 conv=fsync
+
+Note: the offset is 32 KiB on i.MX93, not 33 KiB as on i.MX8MM.
+
+Write flash.bin to the eMMC with uuu
+====================================
+Set the boot switches to Serial Downloader:
+
+  Boot mode                      1-2    3-4    5-6   7-8
+  -----------------------------  -----  -----  ----  ----
+  Cortex-A55 Serial Downloader   CLOSE  OPEN   OPEN  OPEN
+  Cortex-A55 eMMC                OPEN   CLOSE  OPEN  OPEN
+
+$ uuu -b tools/u-boot.uuu flash.bin
+
+The -b is needed, otherwise uuu ignores the file name. The path of the image is
+relative to the current directory. When U-Boot is loaded over USB
+it enters "fastboot usb 0" instead of booting. "flash bootloader" writes to
+the eMMC boot partition 1, as defined by ${fastboot_raw_partition_bootloader}.
+
+Only the first USB controller (usbotg1) can be used as a USB device. It runs
+in the mode selected by its ID pin (dr_mode = "otg"), usbotg2 is host only.

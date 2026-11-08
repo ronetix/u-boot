@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2022 NXP
+ */
+
+/dts-v1/;
+
+#include "imx93-rnx-som.dtsi"
+
+/ {
+	model = "Ronetix i.MX93-OSM board";
+	compatible = "fsl,imx93-osm", "fsl,imx93";
+};
+
+&usdhc2 {
+	cd-gpios = <&gpio3 0 GPIO_ACTIVE_HIGH>;
+};

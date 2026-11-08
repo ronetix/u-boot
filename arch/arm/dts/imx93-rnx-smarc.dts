@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2022 NXP
+ */
+
+/dts-v1/;
+
+#include "imx93-rnx-som.dtsi"
+
+/ {
+	model = "Ronetix i.MX93-SMARC board";
+	compatible = "fsl,imx93-smarc", "fsl,imx93";
+};
+
+&eqos {
+	pinctrl-0 = <&pinctrl_eqos>, <&pinctrl_eth_rst>;
+};
+
+&ethphy1 {
+	/* First PHY probed. GPIO2_IO29 also resets the FEC PHY */
+	reset-gpios = <&gpio2 29 GPIO_ACTIVE_LOW>;
+	reset-assert-us = <15000>;
+	reset-deassert-us = <100000>;
+};
+
+&usdhc2 {
+	cd-gpios = <&gpio3 0 GPIO_ACTIVE_LOW>;
+};
+
+&iomuxc {
+	pinctrl_eth_rst: ethrstgrp {
+		fsl,pins = <
+			MX93_PAD_GPIO_IO29__GPIO2_IO29		0x31e	/* ETH RST */
+		>;
+	};
+};

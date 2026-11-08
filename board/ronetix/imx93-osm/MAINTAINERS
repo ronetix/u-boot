@@ -1,0 +1,15 @@
+RNX-i.MX93-OSM / RNX-i.MX93-SMARC BOARD
+M:	Ilko Iliev <iliev@ronetix.at>
+S:	Maintained
+F:	board/ronetix/imx93-osm/
+F:	include/configs/imx93_osm.h
+F:	configs/imx93-rnx_osm_defconfig
+F:	configs/imx93-rnx_smarc_defconfig
+F:	configs/imx93-rnx_smarc_2gb_defconfig
+F:	arch/arm/dts/imx93-rnx-som.dtsi
+F:	arch/arm/dts/imx93-rnx-osm.dts
+F:	arch/arm/dts/imx93-rnx-osm-u-boot.dtsi
+F:	arch/arm/dts/imx93-rnx-smarc.dts
+F:	arch/arm/dts/imx93-rnx-smarc-u-boot.dtsi
+F:	tools/imx_build_firmware.sh
+F:	tools/u-boot.uuu

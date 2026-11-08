@@ -1,0 +1,27 @@
+uuu_version 1.2.39
+
+# Write a bootloader image to the eMMC of a Ronetix i.MX93 board
+# (RNX-iMX93-OSM/SMARC) in Serial Downloader mode.
+#
+# Usage, from the U-Boot top directory:
+#   uuu -b tools/u-boot.uuu flash.bin
+#
+# The -b is needed, otherwise uuu ignores the file name.
+#
+# The board U-Boot needs fastboot, ${emmc_dev} and
+# ${fastboot_raw_partition_bootloader}.
+
+# Not a comment: "# @" declares a parameter. uuu -b replaces every
+# _bootloader_image below with the first argument.
+# @_bootloader_image | bootloader
+
+SDPS: boot -f _bootloader_image
+
+FB: ucmd setenv fastboot_dev mmc
+FB: ucmd setenv mmcdev ${emmc_dev}
+FB: ucmd mmc dev ${emmc_dev}
+
+FB: flash bootloader _bootloader_image
+FB: ucmd if env exists emmc_ack; then ; else setenv emmc_ack 0; fi;
+FB: ucmd mmc partconf ${emmc_dev} ${emmc_ack} 1 0
+FB: done
