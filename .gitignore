@@ -139,6 +139,7 @@ __pycache__
 /imx-atf-imx93/
 /firmware-imx-*/
 /firmware-sentinel-*/
+/firmware-ele-imx-*/
 
 # binman mkimage intermediate files
 /mkimage*.mkimage

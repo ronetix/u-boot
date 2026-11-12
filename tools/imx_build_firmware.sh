@@ -16,8 +16,10 @@
 #
 #   CPU_REV=A0 tools/imx_build_firmware.sh imx93
 #
-#   selects the ELE container for i.MX93 CPU revision A0 (A1 is the
-#   default). Run "make" again afterwards to rebuild flash.bin.
+#   selects the ELE container for the i.MX93 CPU revision, A0, A1 or A2
+#   (A1 is the default). A0 uses mx93a0-ahab-container.img, A1 and A2 both
+#   use mx93a1-ahab-container.img. Run "make" again afterwards to rebuild
+#   flash.bin. The RNX-iMX93-OSM carries an A0 die, so it needs CPU_REV=A0.
 #
 #   tools/imx_build_firmware.sh clean
 #
@@ -46,10 +48,19 @@
 #      copies the needed files to the current directory:
 #        imx8mm, imx8mn: firmware-imx-8.20, LPDDR4 training firmware
 #        imx8mq:         firmware-imx-7.9, LPDDR4 training and HDMI firmware
-#        imx93:          firmware-imx-8.28-994fa14, LPDDR4 training firmware
-#                        firmware-sentinel-0.11, ELE container
-#                        mx93a1-ahab-container.img (or mx93a0- for
-#                        CPU_REV=A0) copied to mx93-ahab-container.img
+#        imx93:          firmware-imx-8.32-1991416, LPDDR4 training firmware
+#                        firmware-ele-imx-2.0.6-c0b284c, ELE container
+#                        mx93a1-ahab-container.img for CPU_REV=A1 and A2,
+#                        or firmware-ele-imx-0.1.0 and
+#                        mx93a0-ahab-container.img for CPU_REV=A0 (later
+#                        packages no longer ship the A0 container),
+#                        copied to mx93-ahab-container.img
+#
+#      These are the versions meta-freescale uses, so a standalone flash.bin
+#      matches the one the Yocto BSP builds: imx-atf lf_v2.14 (imx-atf_2.14.bb),
+#      firmware-imx 8.32 and firmware-ele-imx 2.0.6. Keeping them in step
+#      matters - the older ELE packages each carry a different
+#      mx93a1-ahab-container.img.
 #
 #   binman picks up these files when "make" builds flash.bin.
 #   On i.MX8M "make flash.bin" still works. On i.MX93 it fails with
@@ -76,7 +87,7 @@ usage()
 {
 	echo "Usage:"
 	echo "  $0 imx8mq | imx8mm | imx8mn | imx93 | clean"
-	echo "  CPU_REV=A0 $0 imx93    (i.MX93 CPU revision A0, default A1)"
+	echo "  CPU_REV=A0|A1|A2 $0 imx93   (i.MX93 CPU revision, default A1)"
 	echo "For example:"
 	echo "  $0 imx8mn"
 }
@@ -106,7 +117,8 @@ clean()
 		return 1
 	fi
 
-	run_cmd rm -rf imx-atf imx-atf-imx93 firmware-imx-* firmware-sentinel-*
+	run_cmd rm -rf imx-atf imx-atf-imx93 firmware-imx-* \
+		firmware-sentinel-* firmware-ele-imx-*
 	run_cmd rm -f bl31.bin lpddr4*.bin signed_hdmi_*.bin mx93*-ahab-container.img
 
 	echo "done."
@@ -120,12 +132,24 @@ main()
 	local FIRMWARE_SENTINEL=""
 	local SRC_URI BRANCH_ATF FIRMWARE
 	local cpu_rev=${CPU_REV:-A1}
+	local ele_rev ele_pkg
 
+	# The ELE container is not named after every CPU revision: an A0 die
+	# needs mx93a0-ahab-container.img, while A1 and A2 both run the A1
+	# container. And the packages differ - mx93a0 was dropped after
+	# firmware-ele-imx-0.1.0, the package the 6.1 BSP used, so A0 has to
+	# come from there rather than from the current firmware-sentinel.
 	case "$cpu_rev" in
-	"A0" | "A1")
+	"A0")
+		ele_rev="a0"
+		ele_pkg="firmware-ele-imx-0.1.0"
+		;;
+	"A1" | "A2")
+		ele_rev="a1"
+		ele_pkg="firmware-ele-imx-2.0.6-c0b284c"
 		;;
 	*)
-		echo "Error: CPU_REV=$cpu_rev, must be A0 or A1"
+		echo "Error: CPU_REV=$cpu_rev, must be A0, A1 or A2"
 		return 1
 	esac
 
@@ -153,10 +177,10 @@ main()
 
 	"imx93")
 		SRC_URI="https://github.com/nxp-imx/imx-atf"
-		BRANCH_ATF="lf_v2.8"
+		BRANCH_ATF="lf_v2.14"
 		ATF_DIR="imx-atf-imx93"
-		FIRMWARE="firmware-imx-8.28-994fa14"
-		FIRMWARE_SENTINEL="firmware-sentinel-0.11"
+		FIRMWARE="firmware-imx-8.32-1991416"
+		FIRMWARE_SENTINEL="$ele_pkg"
 		;;
 
 	*)
@@ -168,6 +192,18 @@ main()
 
 	if [ ! -d "$ATF_DIR" ]; then
 		run_cmd "git clone -b $BRANCH_ATF $SRC_URI $ATF_DIR" || return
+	else
+		# A clone from an earlier run is reused as it is, so a changed
+		# BRANCH_ATF would otherwise silently keep building the old
+		# branch. That bit us when imx93 moved from lf_v2.8 to lf_v2.14.
+		local have_branch
+		have_branch=$(git -C "$ATF_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)
+		if [ "$have_branch" != "$BRANCH_ATF" ]; then
+			echo "Error: $ATF_DIR is on branch '$have_branch'," \
+			     "expected '$BRANCH_ATF'."
+			echo "       Remove it (or run '$0 clean') and try again."
+			return 1
+		fi
 	fi
 
 	run_cmd "(cd $ATF_DIR && unset LDFLAGS && make PLAT=$soc bl31)" || return
@@ -187,9 +223,10 @@ main()
 	fi
 
 	if [ -n "$FIRMWARE_SENTINEL" ]; then
-		echo "Get the NXP ELE firmware for CPU revision $cpu_rev"
+		echo "Get the NXP ELE firmware for CPU revision $cpu_rev" \
+		     "(mx93$ele_rev container from $FIRMWARE_SENTINEL)"
 		get_firmware $FIRMWARE_SENTINEL || return
-		run_cmd cp $FIRMWARE_SENTINEL/mx93${cpu_rev,,}-ahab-container.img \
+		run_cmd cp $FIRMWARE_SENTINEL/mx93$ele_rev-ahab-container.img \
 			mx93-ahab-container.img || return
 	fi
 
