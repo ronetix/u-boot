@@ -228,6 +228,22 @@ main()
 		get_firmware $FIRMWARE_SENTINEL || return
 		run_cmd cp $FIRMWARE_SENTINEL/mx93$ele_rev-ahab-container.img \
 			mx93-ahab-container.img || return
+
+		# Force the SPL container description to be regenerated.
+		#
+		# The "APPEND mx93-ahab-container.img" of CONFIG_IMX_CONFIG is
+		# preprocessed into spl/u-boot-spl.cfgout, and it ends up
+		# commented out there when the container was not present at the
+		# time that file was generated. Nothing makes the cfgout depend
+		# on the container, so a "make" run before this script leaves a
+		# stale cfgout behind and the next "make" silently builds a
+		# flash.bin without the ELE firmware. It boots, but ELE never
+		# starts and U-Boot reports
+		#   BuildInfo:
+		#     - ELE firmware not included
+		# instead of the version. Removing these makes the order of
+		# "make" and this script irrelevant.
+		run_cmd rm -f spl/u-boot-spl.cfgout spl.bin flash.bin .binman_stamp
 	fi
 
 	echo "done."
