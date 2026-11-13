@@ -41,7 +41,7 @@
 #                        into ./imx-atf
 #        imx8mq:         https://github.com/ronetix/imx-atf, imx_4.19.35_1.0.0
 #                        into ./imx-atf
-#        imx93:          https://github.com/nxp-imx/imx-atf, lf_v2.8
+#        imx93:          https://github.com/nxp-imx/imx-atf, lf_v2.14
 #                        into ./imx-atf-imx93
 #
 #   2. Downloads and extracts the NXP firmware packages (only if missing) and
